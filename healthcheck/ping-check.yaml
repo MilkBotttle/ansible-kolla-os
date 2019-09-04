@@ -1,0 +1,7 @@
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Ping to {{ dest }}
+      shell: |
+        ping -c 1 {{ dest }}
+      with_items: "{{ dest }}"

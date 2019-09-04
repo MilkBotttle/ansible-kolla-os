@@ -1,0 +1,79 @@
+- name: Get ctlplane info
+  shell: |
+    source /home/stack/stackrc
+    openstack subnet show ctlplane-subnet -c cidr -f value
+  register: ctlplane_cidr
+
+- set_fact:
+    nic_config_dest: "kolla-servers/{{ servername }}-config.yaml"
+    mapping_dest: "kolla-servers/{{ servername }}-mapping.yaml"
+
+- name: "Generate mapping file for {{ servername }}"
+  copy:
+    src: "nic-configs/{{ role }}-mapping.yaml"
+    dest: "{{ mapping_dest }}"
+
+- name: "Generate nic-configs for {{ servername }}"
+  copy:
+    src: "nic-configs/{{ role }}-config.yaml"
+    dest: "{{ nic_config_dest }}"
+
+- name: "Insert ctlplane IP information for {{ servername }}"
+  replace:
+    path: "{{ nic_config_dest }}"
+    regexp: 'ctlplane$'
+    replace: "{{ ctlplane_ip }}/{{ ctlplane_cidr.stdout.split('/')[1] }}"
+
+- name: "Insert storage IP information for {{ servername }}"
+  replace:
+    path: "{{ nic_config_dest }}"
+    regexp: 'storage$'
+    replace: "{{ storage_ip }}/{{ networks.storage.cidr.split('/')[1] }}"
+
+- name: "Insert tunnel IP information for {{ servername }}"
+  replace:
+    path: "{{ nic_config_dest }}"
+    regexp: 'tunnel$'
+    replace: "{{ tunnel_ip }}/{{ networks.tunnel.cidr.split('/')[1] }}"
+
+- name: "Insert ctlplane IP information for {{ servername }}"
+  replace:
+    path: "{{ nic_config_dest }}"
+    regexp: 'internal$'
+    replace: "{{ internal_ip }}/{{ networks.internal.cidr.split('/')[1] }}"
+
+- name: "Insert external IP information for {{ servername }}"
+  replace:
+    path: "{{ nic_config_dest }}"
+    regexp: 'external$'
+    replace: "{{ external_ip }}/{{ networks.external.cidr.split('/')[1] }}"
+
+- name: "Instert external vlan information for {{ servername }}"
+  replace:
+    path: "{{ nic_config_dest }}"
+    regexp: 'external_vlan_id'
+    replace: "{{ networks.external.vlan_id }}"
+
+- name: "Instert internal vlan information for {{ servername }}"
+  replace:
+    path: "{{ nic_config_dest }}"
+    regexp: 'internal_vlan_id'
+    replace: "{{ networks.internal.vlan_id }}"
+
+- name: "Instert storage vlan information for {{ servername }}"
+  replace:
+    path: "{{ nic_config_dest }}"
+    regexp: 'storage_vlan_id'
+    replace: "{{ networks.storage.vlan_id }}"
+
+- name: "Instert tunnel vlan information for {{ servername }}"
+  replace:
+    path: "{{ nic_config_dest }}"
+    regexp: 'tunnel_vlan_id'
+    replace: "{{ networks.tunnel.vlan_id }}"
+
+- name: "Instert gateway for {{ servername }}"
+  replace:
+    path: "{{ nic_config_dest }}"
+    regexp: 'default_gateway'
+    replace: "{{ default_gateway }}"

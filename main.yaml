@@ -1,0 +1,26 @@
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Read variables
+      include_vars: vars.yaml
+
+    - import_tasks: tasks/validate-vars.yaml
+
+    - include_tasks: tasks/create-network.yaml
+      vars:
+        network: "{{ item }}"
+      with_dict: "{{ networks }}"
+
+    - include_tasks: tasks/servers.yaml
+      vars:
+        role_name: "{{ item.key }}"
+        nodes: "{{ item.value }}"
+      with_dict: "{{ servers }}"
+
+    - name: Generate inventory
+      template:
+        src: tmplates/inventory.j2.yaml
+        dest: kolla-os-inventory.yaml
+      tags:
+        - deploy-server
+        - generate-inventory

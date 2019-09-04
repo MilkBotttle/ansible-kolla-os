@@ -1,0 +1,121 @@
+# Create storage, tunnel, external, ctlplane, internal port
+
+# Random create ports
+- name: "Create {{ servername }} ctlplane port randomly"
+  os_port:
+    name: "{{ servername }}_ctlplane_port"
+    network: "ctlplane"
+  register: ctlplane_port
+  when: "networks.ctlplane.hosts[servername] is not defined"
+  tags:
+    - deploy-server
+    - create-network
+
+- name: "Create {{ servername }} storage port randomly"
+  os_port:
+    name: "{{ servername }}_storage_port"
+    network: "storage"
+  register: storage_port
+  when: "networks.storage.hosts[servername] is not defined"
+  tags:
+    - deploy-server
+    - create-network
+
+- name: "Create {{ servername }} internal port randomly"
+  os_port:
+    name: "{{ servername }}_internal_port"
+    network: "internal"
+  register: internal_port
+  when: "networks.internal.hosts[servername] is not defined"
+  tags:
+    - deploy-server
+    - create-network
+
+- name: "Create {{ servername }} external port randomly"
+  os_port:
+    name: "{{ servername }}_external_port"
+    network: "external"
+  register: external_port
+  when: "networks.external.hosts[servername] is not defined"
+  tags:
+    - deploy-server
+    - create-network
+
+- name: "Create {{ servername }} tunnel port randomly"
+  os_port:
+    name: "{{ servername }}_tunnel_port"
+    network: "tunnel"
+  register: tunnel_port
+  when: "networks.tunnel.hosts[servername] is not defined"
+  tags:
+    - deploy-server
+    - create-network
+
+# create static
+- name: "Create {{ servername }} ctlplane port static"
+  os_port:
+    name: "{{ servername }}_ctlplane_port"
+    network: "ctlplane"
+    fixed_ips:
+      - ip_address: "{{ networks.ctlplane.hosts[servername] }}"
+  register: ctlplane_port_static
+  when: "networks.ctlplane.hosts[servername] is defined"
+  tags:
+    - deploy-server
+    - create-network
+
+- name: "Create {{ servername }} storage port static"
+  os_port:
+    name: "{{ servername }}_storage_port"
+    network: "storage"
+    fixed_ips:
+      - ip_address:  "{{ networks.storage.hosts[servername] }}"
+  register: storage_port_static
+  when: "networks.storage.hosts[servername] is defined"
+
+- name: "Create {{ servername }} internal port static"
+  os_port:
+    name: "{{ servername }}_internal_port"
+    network: "internal"
+    fixed_ips:
+      - ip_address: "{{ networks.internal.hosts[servername] }}"
+  register: internal_port_static
+  when: "networks.internal.hosts[servername] is defined"
+  tags:
+    - deploy-server
+    - create-network
+
+- name: "Create {{ servername }} external port static"
+  os_port:
+    name: "{{ servername }}_{{ network }}_port"
+    network: "external"
+    fixed_ips:
+      - ip_address: "{{ networks.external.hosts[servername] }}"
+  register: external_port_static
+  when: "networks.external.hosts[servername] is defined"
+  tags:
+    - deploy-server
+    - create-network
+
+- name: "Create {{ servername }} tunnel port static"
+  os_port:
+    name: "{{ servername }}_tunnel_port"
+    network: "tunnel"
+    fixed_ips:
+      - ip_address: "{{ networks.tunnel.hosts[servername] }}"
+  register: tunnel_port_static
+  when: "networks.tunnel.hosts[servername] is defined"
+  tags:
+    - deploy-server
+    - create-network
+
+- set_fact:
+    ctlplane_port_id: "{{ ctlplane_port.id | default(ctlplane_port_static.id) }}"
+    ctlplane_ip: "{{ ctlplane_port.port.fixed_ips[0].ip_address | default(ctlplane_port_static.port.fixed_ips[0].ip_address) }}"
+    storage_ip: "{{ storage_port.port.fixed_ips[0].ip_address | default(storage_port_static.port.fixed_ip[0].ip_address) }}"
+    tunnel_ip: "{{ tunnel_port.port.fixed_ips[0].ip_address | default(tunnel_port_static.port.fixed_ips[0].ip_address) }}"
+    external_ip: "{{ external_port.port.fixed_ips[0].ip_address | default(tunnel_port_static.port.fixed_ips[0].ip_address) }}"
+    internal_ip: "{{ internal_port.port.fixed_ips[0].ip_address | default(internal_port_static.port.fixed_ips[0].ip_address) }}"
+  tags:
+    - deploy-server
+    - create-network

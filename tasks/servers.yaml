@@ -1,0 +1,12 @@
+# This set_fact to prevent the variable will be canged for included task use.
+- set_fact:
+    tmp: "{{ role_name }}"
+  tags:
+    - always
+
+- import_tasks: create-a-server.yaml
+  vars:
+    server_role: "{{ tmp }}"
+    servername: "{{ item.key }}"
+    baremetal_node: "{{ item.value }}"
+  with_dict: "{{ nodes }}"

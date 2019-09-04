@@ -1,0 +1,5 @@
+interface_mapping:
+    nic1: em3
+    nic2: em1
+    nic3: 12:34:56:de:f0:12
+    nic4: 12:34:56:78:9a:bc

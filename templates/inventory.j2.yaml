@@ -1,0 +1,23 @@
+{% if servers.keys()|length > 0 %}
+{% for role, nodes in servers.items() %}
+all:
+  {% for node in nodes %}
+{% include "parts/host.j2.yaml" %}
+  {% endfor %}
+
+controller:
+{% if role == 'controller' %}
+  {% for node in nodes %}
+{% include "parts/host.j2.yaml" %}
+  {% endfor %}
+{% endif %}
+
+compute:
+{% if role == 'compute' %}
+  {% for node in nodes %}
+{% include "parts/host.j2.yaml" %}
+  {% endfor %}
+{% endif %}
+
+{% endfor %}
+{% endif %}
