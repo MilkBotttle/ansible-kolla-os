@@ -7,7 +7,12 @@
 
 # Getting Started
 * Edit `vars.yaml` fit in requirement.
+* Edit 
 * Deploy OS for kolla-ansible
 ```
 ansible-playbook main.yaml
 ```
+
+# TODO Feature
+[ ] Network config after deploy
+[ ] Remove node

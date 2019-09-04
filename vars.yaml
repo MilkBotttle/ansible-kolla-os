@@ -28,7 +28,7 @@
 #
 servers:
   controller:
-    - ctrl1: ocn3
+    - deployed: ocn3
 
 # This variable defined the network for deploy nodes.
 # In 'networks' dict conatain each network info in dicts.
@@ -64,6 +64,6 @@ networks:
     cidr: '100.100.100.0/24'
   ctlplane:
     hosts:
-      ctrl1: 192.168.0.200
+      deployed: 192.168.0.100
 
 default_gateway: '192.168.100.254'

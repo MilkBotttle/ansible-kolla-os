@@ -1,2 +1,4 @@
 ansible-errors.json
 ansible.cfg
+*-config.yaml
+*-mapping.yaml

@@ -1,0 +1,8 @@
+all:
+  deployed:
+    ansible_host:  192.168.0.100  
+controller:
+  deployed:
+    ansible_host:  192.168.0.100  
+compute:
+

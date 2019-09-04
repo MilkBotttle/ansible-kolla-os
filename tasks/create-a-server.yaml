@@ -1,5 +1,6 @@
 - set_fact:
     nic_config_path:  "kolla-servers/{{ servername }}-config.yaml"
+    port_info_path:  "kolla-servers/{{ servername }}-info.yaml"
   tags:
     - always
 
@@ -11,14 +12,21 @@
         source /home/stack/stackrc
         openstack baremetal node show {{ baremetal_node }} -c uuid -f value
       register: baremetalnode_uuid
+      tags:
+        - deploy-server
 
     - name: Get host hostname
       shell: |
         source /home/stack/stackrc
         openstack host list --zone nova -f value -c 'Host Name'
       register: host_name
+      tags:
+        - deploy-server
+
     - set_fact:
         availability_zone: "nova:{{ host_name.stdout }}:{{ baremetalnode_uuid.stdout }}"
+      tags:
+        - deploy-server
   when:  baremetal_node != ''
 
 - set_fact:
@@ -26,11 +34,16 @@
 - import_tasks: create-nic-configs.yaml
   vars:
     role: "{{ tmp }}"
+  tags:
+    - deploy-server
+    - create-network
 
 - name: Generate userdata
   set_fact:
     nic_config_content: "{{ lookup('file', nic_config_path) }}"
     mapping_content: "{{ lookup('file', 'kolla-servers/{{ servername }}-mapping.yaml') }}"
+  tags:
+    - deploy-server
 
 - name: "Create {{ servername }} Server"
   os_server:
@@ -55,13 +68,18 @@
       EOF
       os-net-config -d -c /etc/os-net-config/config.yaml 2>&1 | tee /var/log/os-nic-config.log
   register: server
+  tags:
+    - deploy-server
 
 - name: Save server info
   copy:
-    dest: "{{ nic_config_path }}"
+    dest: "{{ port_info_path }}"
     content: |
       ctlplane_port_ip: {{ ctlplane_ip }}
       storage_port_ip: {{ storage_ip }}
       internal_port_ip: {{ internal_ip }}
       external_port_ip: {{ external_ip }}
       tunnel_port_ip: {{ tunnel_ip }}
+  tags:
+    - deploy-server
+    - create-network

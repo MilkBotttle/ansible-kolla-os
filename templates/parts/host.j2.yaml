@@ -1,3 +1,4 @@
 {{ node.keys()[0] }}:
 {% set cmd= "grep ctlplane_port_ip kolla-servers/" + node.keys()[0] + "-info.yaml" %}
     ansible_host: {{ lookup('pipe', cmd).split(':')[1] }}
+    ansible_ssh_user: centos

@@ -6,7 +6,9 @@
     name: "{{ servername }}_ctlplane_port"
     network: "ctlplane"
   register: ctlplane_port
-  when: "networks.ctlplane.hosts[servername] is not defined"
+  when:
+    - "networks.ctlplane.hosts[servername] is not defined"
+    - deployed_server == false
   tags:
     - deploy-server
     - create-network
@@ -59,7 +61,9 @@
     fixed_ips:
       - ip_address: "{{ networks.ctlplane.hosts[servername] }}"
   register: ctlplane_port_static
-  when: "networks.ctlplane.hosts[servername] is defined"
+  when:
+    - "networks.ctlplane.hosts[servername] is defined"
+    - deployed_server == false
   tags:
     - deploy-server
     - create-network
@@ -110,8 +114,8 @@
     - create-network
 
 - set_fact:
-    ctlplane_port_id: "{{ ctlplane_port.id | default(ctlplane_port_static.id) }}"
-    ctlplane_ip: "{{ ctlplane_port.port.fixed_ips[0].ip_address | default(ctlplane_port_static.port.fixed_ips[0].ip_address) }}"
+    ctlplane_port_id: "{{ ctlplane_port.id | default(ctlplane_port_static.id) | default('') }}"
+    ctlplane_ip: "{{ ctlplane_port.port.fixed_ips[0].ip_address | default(ctlplane_port_static.port.fixed_ips[0].ip_address) | default(networks.ctlplane.hosts[servername]) }}"
     storage_ip: "{{ storage_port.port.fixed_ips[0].ip_address | default(storage_port_static.port.fixed_ip[0].ip_address) }}"
     tunnel_ip: "{{ tunnel_port.port.fixed_ips[0].ip_address | default(tunnel_port_static.port.fixed_ips[0].ip_address) }}"
     external_ip: "{{ external_port.port.fixed_ips[0].ip_address | default(tunnel_port_static.port.fixed_ips[0].ip_address) }}"
