@@ -4,7 +4,7 @@
     deployed_server: false
   tasks:
     - name: Read variables
-      include_vars: vars.yaml
+      include_vars: "{{ var_file }}"
       tags:
         - always
 

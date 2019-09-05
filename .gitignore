@@ -2,3 +2,8 @@ ansible-errors.json
 ansible.cfg
 *-config.yaml
 *-mapping.yaml
+*-info.yaml
+kolla-os-inventory.yaml
+inventory.yaml
+hosts.yaml
+*.retry
