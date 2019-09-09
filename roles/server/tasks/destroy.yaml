@@ -1,0 +1,8 @@
+---
+-debug: msg="destroy"
+- name: Destroy servers
+  os_server:
+    state: absent
+    name: "{{ item.keys()[0] }}"
+  with_items: "{{ servers.values() }}"
+  tags: never

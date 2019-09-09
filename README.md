@@ -12,7 +12,13 @@
 ```
 ansible-playbook main.yaml
 ```
+# Configure deployed node
+* Edit nic-configs
+# Directories
+* `kolla-servers` - Contain nic-config, interface-mapping for each node generate by Ansible.
+* `nic-configs` - Contain nic-config source file for Ansible generate node's nic-config.
 
 # TODO Feature
-[ ] Network config after deploy
+[ ] Reconfig network
 [ ] Remove node
+[ ] Add gen nic-config tag for update nic-config

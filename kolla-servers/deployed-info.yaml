@@ -1,5 +1,0 @@
-ctlplane_port_ip: 192.168.0.100
-storage_port_ip: 100.100.100.185
-internal_port_ip: 150.150.150.75
-external_port_ip: 200.200.200.126
-tunnel_port_ip: 120.120.120.122

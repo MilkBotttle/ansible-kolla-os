@@ -1,7 +1,0 @@
-# BEGIN ANSIBLE MANAGED BLOCK
-ctlplane_port_ip: 192.168.0.200
-storage_port_ip: 100.100.100.6
-internal_port_ip: 150.150.150.7
-external_port_ip: 200.200.200.227
-tunnel_port_ip: 120.120.120.46
-# END ANSIBLE MANAGED BLOCK

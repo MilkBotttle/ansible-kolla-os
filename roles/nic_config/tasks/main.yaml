@@ -1,0 +1,12 @@
+- name: Get ctlplane info
+  shell: |
+    source /home/stack/stackrc
+    openstack subnet show ctlplane-subnet -c cidr -f value
+  register: ctlplane_cidr
+
+- name: Get nic-config save dest
+  set_fact:
+    nic_config_dest: "kolla-servers/{{ servername }}-config.yaml"
+    mapping_dest: "kolla-servers/{{ servername }}-mapping.yaml"
+
+

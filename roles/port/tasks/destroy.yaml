@@ -1,0 +1,13 @@
+---
+- name: Prepare destroy info
+  set_fact:
+    servername: "{{ item.name }}"
+    net_list: "{{ item. }}"
+
+- name: "Destroy port"
+  os_port:
+    state: absent
+    name: "{{ servername }}-{{ item }}-port"
+  with_items: "{{ net_list }}"
+
+

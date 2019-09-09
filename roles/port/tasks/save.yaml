@@ -1,0 +1,7 @@
+- debug: var=network
+- name: "Save {{ servername }} {{ network }} info"
+  lineinfile:
+    create: yes
+    regexp: "{{ network }}"
+    line: "{{ network }}: {{ ip }}"
+    path: "{{ info_file_path }}/{{ servername }}-info"

@@ -1,0 +1,1 @@
+info_file_path: "{{ playbook_dir}}/kolla-servers"

@@ -1,0 +1,21 @@
+---
+- name: Get node info
+  set_fact:
+    node_info: "{{ item }}"
+
+- name: Create fixed-ip ports
+  include_tasks: static.yaml
+  vars:
+    network: "{{ item }}"
+    servername: "{{ node_info.name }}"
+    ipaddress: "{{ node_info[item] }}"
+  when: node_info[item] != 'random'
+  with_items: "{{ network_require }}"
+
+- name: Create random ip ports
+  include_tasks: random.yaml
+  vars:
+    network: "{{ item }}"
+    servername: "{{ node_info.name }}"
+  when: node_info[item] == 'random'
+  with_items: "{{ network_require }}"

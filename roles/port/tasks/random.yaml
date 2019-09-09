@@ -1,0 +1,9 @@
+- name: "Create {{ servername }} {{ network }} random ip port"
+  os_port:
+    network: "{{ network }}"
+    name: "{{ servername }}-{{ network }}-port"
+  register: p
+
+- include_tasks: save.yaml
+  vars:
+    ip: "{{ p.port.fixed_ips[0].ip_address }}"

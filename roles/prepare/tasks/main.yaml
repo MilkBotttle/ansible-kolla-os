@@ -1,0 +1,4 @@
+---
+- name: Parse variables
+  set_facts:
+

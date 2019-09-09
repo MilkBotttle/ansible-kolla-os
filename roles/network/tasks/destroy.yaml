@@ -1,0 +1,6 @@
+- name: "Delete network"
+  os_network:
+    state: absent
+    name: "{{ item }}"
+  when: "item != 'ctlplane'"
+  with_items: "{{ networks.keys() }}"
