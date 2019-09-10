@@ -1,0 +1,33 @@
+- name: Get nic-config save dest
+  set_fact:
+    nic_config_path: "{{ info_file_path }}/{{ servername }}-config.yaml"
+    ip_info_path: "{{ info_file_path }}/{{ servername }}-info.yaml"
+
+- name: "Include {{ servername }} ip info"
+  include_vars: "{{ ip_info_path }}"
+  register: include_register
+
+- name: "Insert IP for {{ servername }}"
+  replace:
+    path: "{{ nic_config_path }}"
+    regexp: "{{ net_fact.key }}$"
+    replace: "{{ net_fact.value[1] }}/{{ networks[net_fact.key].cidr.split('/')[1] }}"
+  with_dict: "{{ include_register.ansible_facts }}"
+  loop_control:
+    loop_var: net_fact
+
+- name: "Insert VLANID for {{ servername }}"
+  replace:
+    path: "{{ nic_config_path }}"
+    regexp: "{{ net_fact.key }}_vlan_id$"
+    replace: "{{ networks[net_fact.key].vlan_id }}"
+  with_dict: "{{ include_register.ansible_facts }}"
+  when: net_fact.key != 'ctlplane'
+  loop_control:
+    loop_var: net_fact
+
+- name: "Instert gateway for {{ servername }}"
+  replace:
+    path: "{{ nic_config_path }}"
+    regexp: 'default_gateway'
+    replace: "{{ default_gateway }}"

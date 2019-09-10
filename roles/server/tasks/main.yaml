@@ -1,2 +1,2 @@
 ---
-- debug: msg="create server"
+- include_tasks: "{{ action }}.yaml"

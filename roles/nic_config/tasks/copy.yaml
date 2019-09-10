@@ -1,0 +1,35 @@
+- name: "Check {{ role }} base mapping file exist"
+  find:
+    path: "{{ base_file_path }}"
+    patterns: "{{ role }}-mapping.yaml"
+  register: f1
+
+- name: "Check {{ role }} base config file exist"
+  find:
+    path: "{{ base_file_path }}"
+    patterns: "{{ role }}-config.yaml"
+  register: f2
+
+
+- fail:
+    msg: "There is no {{ role }}-mapping.yaml for config"
+  when: "f1.files | length > 1"
+- fail:
+    msg: "There is no {{ role }}-config.yaml for config"
+  when: "f2.files | length > 1"
+
+- name: "Generate mapping file"
+  copy:
+    src: "{{ base_file_path }}/{{ role }}-mapping.yaml"
+    dest: "{{ info_file_path }}/{{ node.keys()[0] }}-mapping.yaml"
+  with_items: "{{ nodes }}"
+  loop_control:
+    loop_var: node
+
+- name: "Generate config file"
+  copy:
+    src: "{{ base_file_path }}/{{ role }}-config.yaml"
+    dest: "{{ info_file_path }}/{{ node.keys()[0] }}-config.yaml"
+  with_items: "{{ nodes }}"
+  loop_control:
+    loop_var: node

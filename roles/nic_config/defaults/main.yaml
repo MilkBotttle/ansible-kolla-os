@@ -1,0 +1,2 @@
+info_file_path: "{{ playbook_dir}}/kolla-servers"
+base_file_path: "{{ playbook_dir}}/nic-configs"

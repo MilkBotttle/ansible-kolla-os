@@ -1,0 +1,5 @@
+info_file_path: "{{ playbook_dir }}/kolla-servers"
+overcloud_image: "overcloud-full"
+key_name: "default"
+flavor: "baremetal"
+wait_deploy: no

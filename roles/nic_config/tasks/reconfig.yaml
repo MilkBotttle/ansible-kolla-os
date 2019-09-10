@@ -1,7 +1,1 @@
-- name: Get ip info to reconfig
-  set_fact:
-    server_ip_info: "kolla-servers/{{ servername }}-info.yaml"
-
-- include_vars: "{{ server_ip_info }}"
-
 - include_tasks: create.yaml

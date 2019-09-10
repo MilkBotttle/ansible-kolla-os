@@ -1,0 +1,41 @@
+---
+- name: Get required content
+  set_fact:
+    nic_config_content: "{{ lookup('file','{{ info_file_path }}/{{ servername }}-config.yaml') }}"
+    mapping_content: "{{ lookup('file','{{ info_file_path}}/{{ servername }}-mapping.yaml') }}"
+
+- name: Generate userdata
+  set_fact:
+    userdata: "{{ lookup('template','roles/server/templates/userdata.j2.sh') }}"
+
+- block:
+    - name: Get baremetal node
+      shell: |
+        source /home/stack/stackrc
+        openstack baremetal node show {{ baremetal_node }} -c uuid -f value
+      register: baremetalnode_uuid
+
+    - name: Get nova host hostname
+      shell: |
+        source /home/stack/stackrc
+        openstack host list --zone nova -f value -c 'Host Name'
+      register: host_name
+
+    - set_fact:
+        availability_zone: "nova:{{ host_name.stdout }}:{{ baremetalnode_uuid.stdout }}"
+  when:  baremetal_node != 'random'
+
+- name: "Read {{ servername }} ip info"
+  include_vars: "{{ info_file_path }}/{{ servername }}-info.yaml"
+
+- name: "Create {{ servername }} Server"
+  os_server:
+    name: "{{ servername }}"
+    image: "{{ overcloud_image }}"
+    key_name: "{{ key_name }}"
+    flavor: "baremetal"
+    nics: "port-id={{ ctlplane[0] }}"
+    availability_zone: "{{ availability_zone | default('') }}"
+    timeout: 900
+    wait: "{{ wait_deploy }}"
+    userdata: "{{ userdata }}"

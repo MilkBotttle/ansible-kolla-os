@@ -1,0 +1,94 @@
+---
+- name: Read variables
+  hosts: localhost
+  tags: always
+  gather_facts: no
+  tasks:
+    - include_vars: vars2.yaml
+
+- name: Destory all
+  hosts: localhost
+  tags: destroy
+  gather_facts: no
+  vars:
+    action: 'destroy'
+  tasks:
+    - include_role:
+        name: server
+    - include_role:
+        name: port
+    - include_role:
+        name: network
+
+- name: Create servers
+  hosts: localhost
+  tags: create-server
+  gather_facts: no
+  vars:
+    action: 'create'
+  tasks:
+    - include_role:
+        name: network
+    - include_role:
+        name: port
+      vars:
+        nodes: "{{ item.value }}"
+        role: "{{ item.key }}"
+      with_dict: "{{ servers }}"
+    - include_role:
+        name: nic_config
+    - include_role:
+        name: server
+    - include_role:
+        name: inventory
+
+- name: Recreate nic-config
+  hosts: localhost
+  tags: reconfig-network
+  gather_facts: no
+  vars:
+    action: 'reconfig'
+  tasks:
+    - include_role:
+        name: port
+      vars:
+        nodes: "{{ item.value }}"
+        role: "{{ item.key }}"
+      with_dict: "{{ servers }}"
+      tags:
+        - never
+    - include_role:
+        name: nic_config
+
+- name: Apply nic-config
+  tags: reconfig-network
+  hosts: "{{ host | default('localhost') }}"
+  tasks:
+    - name: Create folder
+      file:
+        state: directory
+        dest: '/etc/os-net-config'
+
+    - name: Copy nic config file
+      copy:
+        src: "{{ playbook_dir }}/kolla-servers/{{ inventory_hostname }}-config.yaml"
+        dest: "/etc/os-net-config/config.yaml"
+    - name: Copy mapping file
+      copy:
+        src: "{{ playbook_dir }}/kolla-servers/{{ inventory_hostname }}-mapping.yaml"
+        dest: "/etc/os-net-config/config.yaml"
+      ignore_errors: yes
+
+    - name: Apply nic config with async
+      command: os-net-config
+      async: 60
+
+- name: Recreate inventory file
+  hosts: localhost
+  tags: create-inventory
+  gather_facts: no
+  vars:
+    action: 'create'
+  tasks:
+    - include_role:
+        name: inventory

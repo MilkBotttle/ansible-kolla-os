@@ -5,6 +5,9 @@
     - always
 
 - import_tasks: create-ports.yaml
+  tags:
+    - create-network
+    - deploy-server
 
 - block:
     - name: Get baremetal node
@@ -31,12 +34,16 @@
 
 - set_fact:
     tmp: "{{ server_role }}"
+  tags:
+    - always
+
 - import_tasks: create-nic-configs.yaml
   vars:
     role: "{{ tmp }}"
   tags:
     - deploy-server
     - create-network
+    - gen-nic-config
 
 - name: Generate userdata
   set_fact:

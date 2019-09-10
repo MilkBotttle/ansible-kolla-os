@@ -1,0 +1,109 @@
+#!/bin/bash 
+function process_cmd {
+    echo "$ACTION : $CMD"
+    $CMD
+    if [[ $? -ne 0 ]]; then
+        echo "Command failed $CMD"
+        exit 1
+    fi
+}
+
+function usage {
+    cat <<EOF
+Usage: $0 COMMAND [--options]
+
+Options:
+    --help, -h          Show this usage information
+    --wait              Wait server deploy complete
+    --verbose, -v       Increase verbosity of ansible-playbook
+    --inventory, -i     Specify path to ansible inventory file
+    --hosts             Specify hosts or group to run plays require --inventory
+
+Commands:
+    destroy             Destroy Servers, Port, Network
+    create-server       Deploy all server defined
+    generate-invntory   Generate inventory file
+    reconfig-network	Reconfig deployed server Network
+EOF
+}
+SHORT_OPTS="hi:v"
+LONG_OPTS="help,wait,verbose,inventory:,hosts:"
+
+RAW_ARGS="$*"
+ARGS=$(getopt -o "${SHORT_OPTS}" -l "${LONG_OPTS}" --name "$0" -- "$@") || { usage >&2; exit 2; }
+
+eval set -- "$ARGS"
+INVNTORY_REQUIRED=false
+VERBOSITY=
+INVENTORY=
+HOSTS=
+EXTRA_OPTS=${EXTRA_OPTS}
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in 
+        (--hosts)
+            HOSTS="-e host=$2"
+            INVNTORY_REQUIRED=true
+            shift 2
+            ;;
+        (--inventory|-i)
+            INVENTORY="--inventory $2"
+            shift 2
+            ;;
+        (--wait)
+            EXTRA_OPTS="$EXTRA_OPTS -e wait_deploy=yes"
+            shift
+            ;;
+        (--verbose|-v)
+            VERBOSITY="$VERBOSITY --verbose"
+            shift
+            ;;
+        (--help|-h)
+            usage
+            shift
+            exit 0
+            ;;
+        (--)
+            shift
+            break
+            ;;
+        (*)
+            echo 'error'
+            exit 3
+            ;;
+esac
+done
+
+if [ "$INVNTORY_REQUIRED" = "true" ];then
+    if [ "x$INVENTORY" = "x" ];then
+        echo "ERROR: When use --hosts required --inventory."
+        exit 3
+    fi
+fi
+
+case "$1" in
+    (destroy)
+        ACTION="Destroy all Servers, Port, Netowrk"
+        EXTRA_OPTS="$EXTRA_OPTS --tags destroy"
+        ;;
+    (create-server)
+        ACTION="Deploy all defined servers"
+        EXTRA_OPTS="$EXTRA_OPTS --tags create-server"
+        ;;
+    (generate-invntory)
+        ACTION="Generate invntory"
+        EXTRA_OPTS="$EXTRA_OPTS --tags create-invntory"
+        ;;
+    (reconfig-network)
+        ACTION="Reconfig deployed server network"
+        EXTRA_OPTS="$EXTRA_OPTS --tags reconfig-network"
+        ;;
+    (*)
+        usage
+        exit 0
+        ;;
+esac
+
+CMD="ansible-playbook $INVENTORY $HOSTS $EXTRA_OPTS site.yaml $VERBOSITY"
+echo $CMD
+process_cmd

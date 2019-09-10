@@ -7,7 +7,7 @@
     network: "ctlplane"
   register: ctlplane_port
   when: (deployed_server) and
-        (networks.ctlplane.hosts is not defined) or
+        (networks.ctlplane is not defined) or
         (networks.ctlplane.hosts[servername] is not defined)
   tags:
     - deploy-server
@@ -18,7 +18,8 @@
     name: "{{ servername }}_storage_port"
     network: "storage"
   register: storage_port
-  when: (networks.storage.hosts is not defined) or
+  when: (networks.storage is defined) and
+        (networks.storage.hosts is not defined) or
         (networks.storage.hosts[servername] is not defined)
   tags:
     - deploy-server
@@ -51,7 +52,8 @@
     name: "{{ servername }}_tunnel_port"
     network: "tunnel"
   register: tunnel_port
-  when: (networks.tunnel.hosts is not defined) or
+  when: (networks.tunnel is defined) and
+        (networks.tunnel.hosts is not defined) or
         (networks.tunnel.hosts[servername] is not defined)
   tags:
     - deploy-server
@@ -79,7 +81,8 @@
     fixed_ips:
       - ip_address:  "{{ networks.storage.hosts[servername] }}"
   register: storage_port_static
-  when: (networks.storage.hosts is defined) and
+  when: (networks.storage is defined) and
+        (networks.storage.hosts is defined) and
         (networks.storage.hosts[servername] is defined)
 
 - name: "Create {{ servername }} internal port static"

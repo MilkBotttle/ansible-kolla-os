@@ -11,5 +11,5 @@
     baremetal_node: "{{ item.value }}"
   with_dict: "{{ nodes }}"
   tags:
-    - create-server
-    - create-network
+    - always
+

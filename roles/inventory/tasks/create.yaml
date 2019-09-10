@@ -1,0 +1,4 @@
+- name: Generate inventory file
+  template:
+    src: inventory.j2.yaml
+    dest: "{{ playbook_dir }}/kolla-os-inventory.yaml"

@@ -1,8 +1,16 @@
 ---
--debug: msg="destroy"
+- name: Get destroy nodes list
+  set_fact:
+    nodes_list: |
+        [
+            {% for role, nodes in servers.items() %}
+                {% for node in nodes %}
+                '{{ node.keys()[0] }}',
+                {% endfor %}
+            {% endfor %}
+        ]
 - name: Destroy servers
   os_server:
     state: absent
-    name: "{{ item.keys()[0] }}"
-  with_items: "{{ servers.values() }}"
-  tags: never
+    name: "{{ item }}"
+  with_items: "{{ nodes_list }}"

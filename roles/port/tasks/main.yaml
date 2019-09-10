@@ -1,7 +1,4 @@
 ---
-# nodes = nodes in roles
-# role = controller compute network
-# Parse the server's port ips
 - name: Prepare node required network info
   set_fact:
     nodes_name: |
@@ -11,15 +8,8 @@
         {% endfor %}
       ]
     network_require: "['ctlplane'] + {{ role_used_network[role] }}"
+  when: action != 'destroy'
 
-# node_use_ip: [
-#   {
-#     name: c1
-#     ctlplane: random
-#     internal: 1.2.3.4
-#     external: 2.3.4.5
-#     storage:
-# ]
 # network sequence: ctlplane, internal, external, octavia, storage, tunnel
 - name: Prepare node required ip info
   set_fact:
@@ -43,6 +33,11 @@
       {{ '}' }},
       {% endfor %}
       ]
+  when: action != 'destroy'
 
 - include_tasks: "{{ action }}.yaml"
   with_items: "{{ node_use_ip }}"
+  when: action != 'destroy'
+
+- include_tasks: destroy.yaml
+  when: action == 'destroy'

@@ -1,2 +1,21 @@
----
-- name:
+# We parse variable convert nested servers to a list
+- name: Generate nodes info
+  set_fact:
+    nodes: |
+      [
+      {% for role, nodes in servers.items() %}
+      {{ '{' }}
+        {% for node in nodes %}
+            'name': '{{ node.keys()[0] }}',
+            'baremetal_node': '{{ node.values()[0] if node.values()[0] != None else'random' }}',
+        {% endfor %}
+      {{ '}' }},
+      {% endfor %}
+      ]
+
+- include_tasks: single-server.yaml
+  vars:
+    role: "{{ item.role }}"
+    servername: "{{ item.name }}"
+    baremetal_node: "{{ item.baremetal_node }}"
+  with_items: "{{ nodes }}"

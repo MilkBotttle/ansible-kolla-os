@@ -1,4 +1,14 @@
 ---
+
+- name: Create vips
+  os_port:
+    name: "{{ item.keys()[0] }}_vip"
+    network: "{{ item.keys()[0] }}"
+    fixed_ips:
+      - ip_address: "{{ item.values()[0] }}"
+  with_items: "{{ vips }}"
+  when: vips is defined
+
 - name: Get node info
   set_fact:
     node_info: "{{ item }}"
@@ -19,3 +29,5 @@
     servername: "{{ node_info.name }}"
   when: node_info[item] == 'random'
   with_items: "{{ network_require }}"
+
+
