@@ -21,20 +21,32 @@
         - create-network
         - deploy-server
 
+    - name: Create VIPs
+      os_port:
+        network: "{{ item.keys()[0] }}"
+        name: "{{ item.keys()[0] }}_vip"
+        fixed_ips:
+          - ip_address: "{{ item.values()[0] }}"
+      with_items: "{{ vips }}"
+      when: vips is defined
+      tags:
+        - create-network
+        - deploy-server
+
     - include_tasks: tasks/servers.yaml
       vars:
         role_name: "{{ item.key }}"
         nodes: "{{ item.value }}"
       with_dict: "{{ servers }}"
       tags:
-        - create-network
-        - deploy-server
+        - always
 
     - name: Generate inventory
       template:
         src: templates/inventory.j2.yaml
         dest: kolla-os-inventory.yaml
       tags:
+        - generate-inventory
         - deploy-server
         - create-network
-        - generate-inventory
+

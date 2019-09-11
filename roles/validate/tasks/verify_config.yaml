@@ -1,0 +1,177 @@
+- name: Validate servers is dict
+  set_fact:
+    defined_roles: "{{ servers.keys() }}"
+  register: task_result
+  ignore_errors: True
+- fail:
+    msg: "servers not dict format"
+  when: task_result.failed
+
+- name: Validate servers defined role avaliable
+  assert:
+    that:
+      - "item in avaliable_roles"
+    fail_msg: "{{ item }} is not avaliable role"
+    success_msg: "All role defined are currected"
+  with_items: "{{ defined_roles }}"
+
+- name: Validate servers value is list of dicts
+  set_fact:
+    allnodesname: |
+      [
+        {% for k, v in servers.items() %}
+            {% for i in v %}
+                '{{ i.keys()[0]}}',
+            {% endfor %}
+        {% endfor %}
+      ]
+  register: task_result
+  ignore_errors: True
+- fail:
+    msg: "servers value is not list of dicts format"
+  when: task_result.failed
+
+- name: Validate role_used_network is dict
+  set_fact:
+    network_role: "{{ role_used_network.keys() }}"
+  register: task_result
+  ignore_errors: True
+- fail:
+    msg: "role_used_network is not dict format"
+  when: task_result.failed
+
+- name: Validate role_used_network defined
+  assert:
+    that:
+      - item in defined_roles
+    fail_msg: "{{ item }} role not defined in servsers"
+  with_items: "{{ network_role }}"
+
+- name: Validate role_used_network value is list
+  set_fact:
+    required_network: |
+      [
+        {% for k,v in role_used_network.items() %}
+            {% for i in v %}
+                '{{ i }}',
+            {% endfor %}
+        {% endfor %}
+      ]
+    ignore_errors: True
+    register: task_result
+- fail:
+    msg: "role_used_network value is not a list"
+  when: task_result.failed
+
+- name: Validate required network are avaliable
+  assert:
+    fail_msg: "role_used_network include unavaliable value, or wrong format"
+    that:
+      - item in avaliable_networks
+  with_items: "{{ required_network }}"
+
+- name: Validate networks is dict
+  set_fact:
+    defined_network_list: |
+      [
+        {% for n in networks.keys() %}
+            '{{ n }}',
+        {% endfor %}
+      ]
+  ignore_errors: True
+  register: task_result
+- fail:
+    msg: "networks is not dict"
+  when: task_result.failed
+
+- name: Validate required network are defined
+  fail:
+    msg: "{{ item }} not defined in networks."
+  when: item not in required_network and item != 'ctlplane'
+  with_items: "{{ defined_network_list }}"
+
+- name: Validate all cidr are defined
+  set_fact:
+    all_cidr: |
+      [
+        {% for k,v in networks.items() %}
+            '{{ v.cidr }}',
+        {% endfor %}
+      ]
+  ignore_errors: True
+  register: task_result
+- fail:
+    msg: "Some network doesn't give cidr"
+  when: task_result.failed
+
+- name: Validate cidr format is current
+  assert:
+    that:
+      - "item | ipaddr()"
+      - "item.split('/')[0] | ipv4"
+      - "item | ipaddr('prefix')"
+    fail_msg: "{{ item }} is not current cidr"
+  with_items: "{{ all_cidr }}"
+
+
+- name: Validate network hosts format current
+  set_fact:
+    all_network_and_node: |
+      [
+        {% for network, value in networks.items() %}
+          {% if value.hosts is defined %}
+             {% for hk,hv in value.hosts.items() %}
+             {{ '{' }}
+             'name': '{{ hk }}',
+             'ip': '{{ hv }}',
+             'cidr': '{{ networks[network].cidr }}',
+             {{ '}' }},
+             {% endfor %}
+          {% endif %}
+        {% endfor %}
+      ]
+  ignore_errors: True
+  register: task_result
+- fail:
+    msg: "networks hosts contain error format"
+  when: task_result.failed
+
+- name: Validate all network hosts defined in servers
+  assert:
+    fail_msg: "{{ item.name }} not defined in server"
+    that:
+      - item.name in allnodesname
+  with_items: "{{ all_network_and_node }}"
+
+- name: Validate hosts ip address in ranged
+  assert:
+    fail_msg: "{{ item.ip }} not in {{ item.cidr }}"
+    that:
+      - "{{ [item.ip] | ipaddr(item.cidr) | length > 0 }}"
+  with_items: "{{ all_network_and_node }}"
+
+- name: Check default_gateway defined
+  fail:
+    msg: "default_gateway must defined"
+  when: default_gateway is not defined
+
+- name: Validate default gateway format
+  assert:
+    fail_msg: "default_gateway not valid ipv4 address"
+    that:
+      - default_gateway | ipv4
+
+- name: Validate VIP defined on avaliable networks
+  assert:
+    that:
+      - item.keys()[0] in defined_network_list
+  with_items: "{{ vips }}"
+
+- name: Validate VIP in ranged
+  assert:
+    fail_msg: "{{ vip.keys()[0] }} vip is not valid"
+    that:
+      - "{{ [vip.values()[0]] | ipaddr(networks[vip.keys()[0]].cidr) | length > 0 }}"
+  with_items: "{{ vips }}"
+  loop_control:
+    loop_var: vip

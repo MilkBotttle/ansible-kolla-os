@@ -1,9 +1,3 @@
-- name: Get ctlplane info
-  shell: |
-    source /home/stack/stackrc
-    openstack subnet show ctlplane-subnet -c cidr -f value
-  register: ctlplane_cidr
-
 - set_fact:
     nodes_name: |
       [

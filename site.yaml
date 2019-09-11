@@ -4,7 +4,14 @@
   tags: always
   gather_facts: no
   tasks:
-    - include_vars: vars2.yaml
+    - include_vars: "{{ config_path | default('config.yaml') }}"
+
+- name: Validate config
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - include_role:
+        name: Validate
 
 - name: Destory all
   hosts: localhost

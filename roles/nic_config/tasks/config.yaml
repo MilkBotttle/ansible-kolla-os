@@ -7,16 +7,16 @@
   include_vars: "{{ ip_info_path }}"
   register: include_register
 
-- name: "Insert IP for {{ servername }}"
+- name: "Replace IP for {{ servername }}"
   replace:
     path: "{{ nic_config_path }}"
     regexp: "{{ net_fact.key }}$"
-    replace: "{{ net_fact.value[1] }}/{{ networks[net_fact.key].cidr.split('/')[1] }}"
+    replace: "{{ net_fact.value[1] }}/{{ networks[net_fact.key].cidr | ipaddr('prefix') }}"
   with_dict: "{{ include_register.ansible_facts }}"
   loop_control:
     loop_var: net_fact
 
-- name: "Insert VLANID for {{ servername }}"
+- name: "Replace VLANID for {{ servername }}"
   replace:
     path: "{{ nic_config_path }}"
     regexp: "{{ net_fact.key }}_vlan_id$"
@@ -26,7 +26,7 @@
   loop_control:
     loop_var: net_fact
 
-- name: "Instert gateway for {{ servername }}"
+- name: "Replace gateway for {{ servername }}"
   replace:
     path: "{{ nic_config_path }}"
     regexp: 'default_gateway'

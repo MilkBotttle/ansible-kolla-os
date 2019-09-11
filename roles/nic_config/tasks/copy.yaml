@@ -10,14 +10,6 @@
     patterns: "{{ role }}-config.yaml"
   register: f2
 
-
-- fail:
-    msg: "There is no {{ role }}-mapping.yaml for config"
-  when: "f1.files | length > 1"
-- fail:
-    msg: "There is no {{ role }}-config.yaml for config"
-  when: "f2.files | length > 1"
-
 - name: "Generate mapping file"
   copy:
     src: "{{ base_file_path }}/{{ role }}-mapping.yaml"

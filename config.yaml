@@ -1,0 +1,125 @@
+# This variable defined the role, servername and baremetal node mapping.
+# In 'servers' dict contain roles dicts, each role dict contain list of servername
+# and baremetal node dict. When baremeatl value is empty will random choose a
+# baremetal node to deploy.
+#
+# Avaliable value for this variable:
+#   - role: controller, compute (string)
+#   - servername: normal string (string)
+#   - baremetal node: baremetal node or uuid, if empty will use random baremetal node.
+# Format:
+# ---
+# servers:
+#   role:
+#     - servernameA: baremetal_nodeA
+#     - servernameB:
+#
+# Example:
+# Controller 1 assign to baremetal1, Controller2,3 use random baremetal node,
+# Compute node use baremetal node  5d0ec6af-e300-4d0b-9098-4bb2f0300486
+# ---
+# servers:
+#   controller:
+#     - control1: baremetal1
+#     - control2:
+#     - control3:
+#   compute:
+#     - compute1: 5d0ec6af-e300-4d0b-9098-4bb2f0300486
+
+servers:
+  controller:
+    - c1:
+    - c2:
+    - c3:
+  compute:
+    - com1:
+    - com2:
+  network:
+    - n1:
+    - n2:
+# This variable defined the network required for each role.
+# Acourding the list create the port named with `servername-network-port`
+#
+# Avaliable value for this variable:
+#   role: controller, compute, network
+#   network: internal, external, storage, compute, octavia, tunnel
+#
+# Format:
+# ---
+# role_used_network:
+#   role: [ network, network, network ]
+#
+# Example:
+# Controller with 1 node c1, compute with 1 node com1.
+# Controller with internal, external networks. Compute with internal, network.
+# ---
+# role_used_network:
+#   controller: [ internal, external, storage ]
+#   compute: [ internal, tunnel, storage ]
+#
+# Then create port:
+#   - c1-internal-port
+#   - c1-external-port
+#   - com1-internal-port
+#
+
+role_used_network:
+  controller: [ internal, external, storage ]
+  compute: [ internal, tunnel, storage ]
+  network: [ internal, octavia ]
+
+# This variable defined the network for deploy nodes.
+# In 'networks' dict conatain each network info with nested dicts.
+#
+# Avaliable for this variable:
+#   - network: tunnel, internal, external, storage, ctlplane(required), octavia
+#   - vlan_id: vlan id for that network
+#   - cidr: network's CIDR (required)
+#   - hosts: a list of { servername: ip} , defined the server need this ip, if not assign ip in here will random generate.
+#
+# Format:
+# ---
+# networks:
+#   network:
+#     cidr: 192.168.10.0/24
+#     vlan_id: 1002
+#     hosts:
+#       n1: 1.2.3.4
+#       n2: 2.3.4.5
+#
+
+networks:
+  tunnel:
+    vlan_id: 1002
+    cidr: 10.168.2.0/24
+  internal:
+    vlan_id: 1001
+    cidr: 10.168.1.0/24
+  external:
+    vlan_id: 1003
+    cidr: 10.168.3.0/24
+  octavia:
+    vlan_id: 1004
+    cidr: 10.168.4.0/24
+  storage:
+    vlan_id: 123
+    cidr: 10.168.5.0/24
+  ctlplane:
+    cidr: 192.168.0.0/24
+    hosts:
+      c1: 192.168.0.100
+
+# The default_gateway for node.
+default_gateway: '10.168.3.254'
+
+# The vips for openstack used.
+# Format:
+# ---
+# vips:
+#   network: ip
+#
+
+vips:
+  - external: 10.168.3.8
+  - internal: 10.168.1.8
+
