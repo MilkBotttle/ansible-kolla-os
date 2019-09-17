@@ -1,5 +1,4 @@
 ---
-
 - name: Create vips
   os_port:
     name: "{{ item.keys()[0] }}_vip"

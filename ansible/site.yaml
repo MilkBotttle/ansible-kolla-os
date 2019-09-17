@@ -80,11 +80,11 @@
 
     - name: Copy nic config file
       copy:
-        src: "../kolla-servers/{{ inventory_hostname }}-config.yaml"
+        src: "{{ playbook_dir | dirname | dirname }}/kolla-servers/{{ inventory_hostname }}-config.yaml"
         dest: "/etc/os-net-config/config.yaml"
     - name: Copy mapping file
       copy:
-        src: "../kolla-servers/{{ inventory_hostname }}-mapping.yaml"
+        src: "{{ playbook_dir | dirname | dirname }}/kolla-servers/{{ inventory_hostname }}-mapping.yaml"
         dest: "/etc/os-net-config/config.yaml"
       ignore_errors: yes
 

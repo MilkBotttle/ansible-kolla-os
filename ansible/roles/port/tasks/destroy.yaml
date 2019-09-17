@@ -1,43 +1,13 @@
 ---
-- name: Prepare destroy info
-  set_fact:
-    servernames: |
-        [
-            {% for role, nodes in servers.items() %}
-                {% for node in nodes %}
-                '{{ node.keys()[0] }}',
-                {% endfor %}
-            {% endfor %}
-        ]
-    net_list: "{{ networks.keys() }}"
 
-
-- name: Generate delete port list
-  set_fact:
-    port_list: |
-        [
-            {% for name in servernames %}
-                {% for net in net_list %}
-                    '{{ name }}-{{ net }}-port',
-                {% endfor %}
-            {% endfor %}
-        ]
-
-- name: "Destroy vips"
-  os_port:
-    state: absent
-    name: "{{ item.keys()[0] }}_vip"
-  with_items: "{{ vips }}"
-
-- name: "Destroy port"
-  os_port:
-    state: absent
-    name: "{{ item }}"
-  with_items: "{{ port_list }}"
+- name: "Destroy all port"
+  shell: |
+    source /home/stack/stackrc
+    openstack port delete $(openstack port list -f value -c ID -c Status | grep -v ACTIVE | awk '{print $1}')
 
 - name: "Clean configs"
   file:
     path: "{{ item }}"
     state: absent
   with_fileglob:
-    - "../kolla-servers/*.yaml"
+    - "{{ info_file_path }}/*.yaml"

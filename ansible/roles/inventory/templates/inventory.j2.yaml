@@ -1,7 +1,7 @@
 [all]
 {% for role, nodes in servers.items() %}
 {% for node in nodes %}
-{% set cmd= "grep ctlplane ../kolla-servers/" + node.keys()[0] + "-info.yaml" %}
+{% set cmd= "grep ctlplane {{ info_file_path }}/" + node.keys()[0] + "-info.yaml" %}
 {{ node.keys()[0] }} ansible_host={{ lookup('pipe', cmd).split()[2].split(']')[0] }} ansible_ssh_user={{ ssh_user }}
 {% endfor %}
 {% endfor %}
@@ -11,7 +11,7 @@
 {% for role, nodes in servers.items() %}
 {% if role == 'controller' %}
 {% for node in nodes %}
-{% set cmd= "grep ctlplane ../kolla-servers/" + node.keys()[0] + "-info.yaml" %}
+{% set cmd= "grep ctlplane {{ info_file_path }}/" + node.keys()[0] + "-info.yaml" %}
 {{ node.keys()[0] }} ansible_host={{ lookup('pipe', cmd).split()[2].split(']')[0] }} ansible_ssh_user={{ ssh_user }}
 {% endfor %}
 {% endif %}
@@ -22,7 +22,7 @@
 {% for role, nodes in servers.items() %}
 {% if role == 'compute' %}
 {% for node in nodes %}
-{% set cmd= "grep ctlplane ../kolla-servers/" + node.keys()[0] + "-info.yaml" %}
+{% set cmd= "grep ctlplane {{ info_file_path }}/" + node.keys()[0] + "-info.yaml" %}
 {{ node.keys()[0] }} ansible_host={{ lookup('pipe', cmd).split()[2].split(']')[0] }} ansible_ssh_user={{ ssh_user }}
 {% endfor %}
 {% endif %}
@@ -33,7 +33,7 @@
 {% for role, nodes in servers.items() %}
 {% if role == 'network' %}
 {% for node in nodes %}
-{% set cmd= "grep ctlplane ../kolla-servers/" + node.keys()[0] + "-info.yaml" %}
+{% set cmd= "grep ctlplane {{ info_file_path }}/" + node.keys()[0] + "-info.yaml" %}
 {{ node.keys()[0] }} ansible_host={{ lookup('pipe', cmd).split()[2].split(']')[0] }} ansible_ssh_user={{ ssh_user }}
 {% endfor %}
 {% endif %}
