@@ -17,18 +17,20 @@ Options:
     --wait              Wait server deploy complete
     --verbose, -v       Increase verbosity of ansible-playbook
     --inventory, -i     Specify path to ansible inventory file
-    --hosts             Specify hosts or group to run plays require --inventory 
+    --hosts             Specify hosts or group to run plays required --inventory 
     --config            Config file path, default is config.yaml
+    
 
 Commands:
     destroy             Destroy Servers, Port, Network
     create-server       Deploy all server defined
     generate-inventory  Generate inventory file
-    reconfig-network	Reconfig deployed server Network
+    reconfig-network	Reconfig deployed server network
+    validate            Validate config.yaml and nic-configs.
 EOF
 }
 SHORT_OPTS="hi:v"
-LONG_OPTS="help,wait,verbose,inventory:,hosts:,config:"
+LONG_OPTS="help,wait,verbose,validate,inventory:,hosts:,config:"
 
 RAW_ARGS="$*"
 ARGS=$(getopt -o "${SHORT_OPTS}" -l "${LONG_OPTS}" --name "$0" -- "$@") || { usage >&2; exit 2; }
@@ -103,12 +105,14 @@ case "$1" in
         ACTION="Reconfig deployed server network"
         EXTRA_OPTS="$EXTRA_OPTS --tags reconfig-network"
         ;;
+    (validate)
+        VALIDATE_OPTS="--tags validate"
+        ;;
     (*)
         usage
         exit 0
         ;;
 esac
 
-CMD="ansible-playbook $INVENTORY $HOSTS $EXTRA_OPTS site.yaml $VERBOSITY"
-echo $CMD
+CMD="ansible-playbook $INVENTORY $HOSTS $VALIDATE_OPTS $EXTRA_OPTS $PWD/ansible-kolla-os/site.yaml $VERBOSITY"
 process_cmd

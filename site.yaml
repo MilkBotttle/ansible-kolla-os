@@ -8,10 +8,12 @@
 
 - name: Validate config
   hosts: localhost
+  tags: validate
   gather_facts: no
   tasks:
     - include_role:
-        name: Validate
+        name: validate
+
 
 - name: Destory all
   hosts: localhost

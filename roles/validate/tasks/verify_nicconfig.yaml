@@ -19,7 +19,7 @@
       external_vlan_id: '3'
       internal_vlan_id: '4'
       octavia_vlan_id: '5'
-      #      default_gateway: '192.168.97.254'
+      # default_gateway: '192.168.97.254'
 
 - name: Find defined role nic-configs
   find:
@@ -58,14 +58,13 @@
     - "{{ defined_roles }}"
     - "{{ fake_data }}"
 
+
 - name: Test os-net-config with dry_run
   block:
     - shell: |
         os-net-config -c {{ item }} --noop
       register: net_config_dryrun
-      failed_when:
-        - net_config_dryrun.stdout == ""
-        - net_config_dryrun.rc != 0
+      failed_when: "net_config_dryrun.stderr_lines | length > 0 or net_config_dryrun.rc != 0"
       with_fileglob: "{{ tmpdir.path }}/*-config.yaml"
   rescue:
     - name: nic-config has wrong syntax
