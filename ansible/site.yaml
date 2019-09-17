@@ -4,7 +4,7 @@
   tags: always
   gather_facts: no
   tasks:
-    - include_vars: "{{ config_path | default('config.yaml') }}"
+    - include_vars: "{{ config_path | default('../config.yaml') }}"
 
 - name: Validate config
   hosts: localhost
@@ -80,11 +80,11 @@
 
     - name: Copy nic config file
       copy:
-        src: "{{ playbook_dir }}/kolla-servers/{{ inventory_hostname }}-config.yaml"
+        src: "../kolla-servers/{{ inventory_hostname }}-config.yaml"
         dest: "/etc/os-net-config/config.yaml"
     - name: Copy mapping file
       copy:
-        src: "{{ playbook_dir }}/kolla-servers/{{ inventory_hostname }}-mapping.yaml"
+        src: "../kolla-servers/{{ inventory_hostname }}-mapping.yaml"
         dest: "/etc/os-net-config/config.yaml"
       ignore_errors: yes
 

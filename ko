@@ -1,4 +1,15 @@
 #!/bin/bash 
+
+function find_base {
+    if test -f "$PWD/ansible/site.yaml"; then
+        PLAYBOOK=$PWD/ansible/site.yaml
+    elif test -f "$HOME/ansible-kolla-os/ansible/site.yaml"; then
+        PLAYBOOK=$HOME/ansible-kolla-os/ansible/site.yaml
+    else
+        echo "Playbook not found!"
+        exit 1
+    fi
+}
 function process_cmd {
     echo "$ACTION : $CMD"
     $CMD
@@ -18,18 +29,18 @@ Options:
     --verbose, -v       Increase verbosity of ansible-playbook
     --inventory, -i     Specify path to ansible inventory file
     --hosts             Specify hosts or group to run plays required --inventory 
-    --config            Config file path, default is config.yaml
-    
+    --config, -c        Config file path, default is config.yaml
+        
 
 Commands:
-    destroy             Destroy Servers, Port, Network
+    destroy             Destroy Servers, Port, Network, Configs
     create-server       Deploy all server defined
     generate-inventory  Generate inventory file
     reconfig-network	Reconfig deployed server network
     validate            Validate config.yaml and nic-configs.
 EOF
 }
-SHORT_OPTS="hi:v"
+SHORT_OPTS="hi:c:v"
 LONG_OPTS="help,wait,verbose,validate,inventory:,hosts:,config:"
 
 RAW_ARGS="$*"
@@ -41,11 +52,17 @@ VERBOSITY=
 INVENTORY=
 HOSTS=
 EXTRA_OPTS=${EXTRA_OPTS}
+find_base
 
 while [ "$#" -gt 0 ]; do
     case "$1" in 
-        (--config)
-            EXTRA_OPTS="$EXTRA_OPTS -e config_path=$2"
+        (--config|-c)
+            if test -f "$2";then
+                EXTRA_OPTS="$EXTRA_OPTS -e config_path=$2"
+            else
+                echo "Config file $2 not found!"
+                exit 3
+            fi
             shift 2
             ;;
         (--hosts)
@@ -97,9 +114,9 @@ case "$1" in
         ACTION="Deploy all defined servers"
         EXTRA_OPTS="$EXTRA_OPTS --tags create-server"
         ;;
-    (generate-invntory)
+    (generate-inventory)
         ACTION="Generate invntory"
-        EXTRA_OPTS="$EXTRA_OPTS --tags create-invntory"
+        EXTRA_OPTS="$EXTRA_OPTS --tags create-inventory"
         ;;
     (reconfig-network)
         ACTION="Reconfig deployed server network"
@@ -114,5 +131,5 @@ case "$1" in
         ;;
 esac
 
-CMD="ansible-playbook $INVENTORY $HOSTS $VALIDATE_OPTS $EXTRA_OPTS $PWD/ansible-kolla-os/site.yaml $VERBOSITY"
+CMD="ansible-playbook $INVENTORY $HOSTS $VALIDATE_OPTS $EXTRA_OPTS $PLAYBOOK $VERBOSITY"
 process_cmd

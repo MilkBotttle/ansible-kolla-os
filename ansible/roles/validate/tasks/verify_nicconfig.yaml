@@ -19,7 +19,7 @@
       external_vlan_id: '3'
       internal_vlan_id: '4'
       octavia_vlan_id: '5'
-      # default_gateway: '192.168.97.254'
+      default_gateway: '192.168.97.254'
 
 - name: Find defined role nic-configs
   find:
@@ -44,7 +44,7 @@
 - debug: var=tmpdir.path
 - name: Generate validate nic-config base
   copy:
-    src: "{{ playbook_dir }}/nic-configs/{{ item }}-config.yaml"
+    src: "../nic-configs/{{ item }}-config.yaml"
     dest: "{{ tmpdir.path }}/{{ item }}-config.yaml"
   with_items: "{{ defined_roles }}"
 

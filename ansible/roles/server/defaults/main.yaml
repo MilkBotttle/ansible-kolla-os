@@ -1,4 +1,4 @@
-info_file_path: "{{ playbook_dir }}/kolla-servers"
+info_file_path: "../kolla-servers"
 overcloud_image: "overcloud-full"
 key_name: "default"
 flavor: "baremetal"

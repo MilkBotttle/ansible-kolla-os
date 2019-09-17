@@ -1,0 +1,100 @@
+---
+# Copyright: (c) 2019, Kuo-tung Kao <jelly.k@inwinstack.com>
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+- name: controller check
+  hosts: control
+  gather_facts: no
+  vars:
+    cinder_rbd_user: admin
+    cinder_rbd_pools: rbd
+    ldap_cmd: 'ldapsearch -h 10.168.27.6:1389 -b "dc=ai,dc=nchc,dc=org,dc=tw" -D "cn=ai-admin,dc=ai,dc=nchc,dc=org,dc=tw" -w password'
+    mysql_user: root
+    mysql_password: n6Vtq6nghKsg1EMyj98Gl8XH2uvmyJfKkOWDB9Zy
+    mysql_host: 10.168.1.123
+    rabbitmq_host: 10.168.1.123
+    rabbitmq_user: openstack
+    rabbitmq_password: IHU99Xp5tM5Rl47ajqdXH3oUxULyfoF0m6mh2TBT
+
+  tasks:
+    - os_auth:
+       auth_url: http://10.168.1.123:5000/v3
+       username: admin
+       password: openstack
+       project_name: admin
+       domain_name: default
+       user_domain_name: default
+       project_domain_name: default
+       insecuer: true
+
+    - name: get maraidb info
+      shell: "mysql -u {{ mysql_user }} -p{{ mysql_password }} -h {{ mysql_host }} -e 'SHOW STATUS LIKE "wsrep_ready";'|grep ON"
+
+    - name: create test-rabbitmq message queue
+      rabbitmq_queue:
+        name: "test-rabbitmq-{{ inventory_hostname }}"
+        login_user: "{{ rabbitmq_user }}"
+        login_password: "{{ rabbitmq_password }}"
+        login_host: "{{ rabbitmq_host }}"
+
+    - name: delete test-rabbitmq message queue
+      rabbitmq_queue:
+        name: "test-rabbitmq-{{ inventory_hostname }}"
+        login_user: "{{ rabbitmq_user }}"
+        login_password: "{{ rabbitmq_password }}"
+        login_host: "{{ rabbitmq_host }}"
+        state: absent
+
+    - name: "openstack list test"
+      shell: |
+        openstack --insecure --os-auth-url={{ os_auth.auth_url }} \
+                             --os-username={{ os_auth.username }} \
+                             --os-password={{ os_auth.password }} \
+                             --os-project-name={{ os_auth.project_name }} \
+                             --os-domain-name={{ os_auth.domain_name }} \
+                             --os-project-domain-name={{ os_auth.project_domain_name }} \
+                             --os-user-domain-name={{ os_auth.user_domain_name }} \
+                             --os-identity-api-version=3 --insecure \
+                            {{ item }} list
+      with_items:
+        - user
+        - volume
+        - flavor
+        - network
+        - stack
+        - zone
+
+    - name: check compute service
+      shell: |
+        docker exec -t -u root kolla_toolbox \
+        openstack --insecure --os-auth-url="{{ os_auth.auth_url }}" \
+                             --os-username="{{ os_auth.username }}" \
+                             --os-password="{{ os_auth.password }}" \
+                             --os-project-name="{{ os_auth.project_name }}" \
+                             --os-project-domain-name="{{ os_auth.project_domain_name }}" \
+                             --os-user-domain-name="{{ os_auth.user_domain_name }}" \
+                             compute service list --long|grep enabled|grep down
+      register: ret
+      failed_when: ret.rc == 0
+
+    - name: check container running
+      shell: "docker ps -a|grep {{ item }}|grep Up"
+      with_items:
+        - mariadb
+        - keepalived
+        - haproxy
+
+    - shell: "docker exec -t -u root cinder_volume rbd --id {{ cinder_rbd_user }} -p {{ cinder_rbd_pools }} ls"
+      become: yes
+      name: run docker rbd
+
+    - name: test ldap
+      shell: "{{ ldap_cmd }}"
+
+- name: compute node check
+  hosts: compute
+  gather_facts: no
+  tasks:
+    - name: run virsh list
+      shell: docker exec -t nova_libvirt virsh list
+

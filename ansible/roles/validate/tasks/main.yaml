@@ -1,6 +1,6 @@
 - name: Set static variable
   set_fact:
-    nic_config_path: "{{ playbook_dir }}/nic-configs"
+    nic_config_path: "../nic-configs"
     avaliable_roles: ['controller','compute','network']
     avaliable_networks: ['internal','external','ctlplane','tunnel','storage','octavia']
 - include_tasks: verify_config.yaml
