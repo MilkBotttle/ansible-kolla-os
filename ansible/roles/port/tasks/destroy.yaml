@@ -1,9 +1,14 @@
 ---
-
-- name: "Destroy all port"
+- name: Get ports
   shell: |
     source /home/stack/stackrc
-    openstack port delete $(openstack port list -f value -c ID -c Status | grep -v ACTIVE | awk '{print $1}')
+    openstack port list -f value -c ID -c Status | grep -v ACTIVE | openstack port list -f value -c ID -c Status | grep -v ACTIVE | grep -o '[0-9a-fA-F]\{8\}-[0-9a-fA-F]\{4\}-[0-9a-fA-F]\{4\}-[0-9a-fA-F]\{4\}-[0-9a-fA-F]\{12\}' | tr '\n' ' '
+  register: delete_ports
+
+- name: Destroy all port
+  shell: |
+    source /home/stack/stackrc
+    openstack port delete {{ delete_ports.stdout }}
 
 - name: "Clean configs"
   file:
