@@ -1,0 +1,6 @@
+- name: Remove from /etc/hosts
+  blockinfile:
+    path: /etc/hosts
+    state: absent
+    marker: "# KOLLA_OS ANSIBLE MANAGED BLOCK"
+  become: true

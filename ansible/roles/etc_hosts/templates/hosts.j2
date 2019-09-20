@@ -1,0 +1,28 @@
+{% for role, nodes in servers.items() %}
+{% if role == 'controller' %}
+{% for node in nodes %}
+{% set cmd= "grep ctlplane {{ info_file_path }}/" + node.keys()[0] + "-info.yaml" %}
+{{ lookup('pipe', cmd).split()[2].split(']')[0] }} c{{ loop.index }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+
+{% for role, nodes in servers.items() %}
+{% if role == 'compute' %}
+{% for node in nodes %}
+{% set cmd= "grep ctlplane {{ info_file_path }}/" + node.keys()[0] + "-info.yaml" %}
+{{ lookup('pipe', cmd).split()[2].split(']')[0] }} com{{ loop.index }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+
+{% for role, nodes in servers.items() %}
+{% if role == 'network' %}
+{% for node in nodes %}
+{% set cmd= "grep ctlplane {{ info_file_path }}/" + node.keys()[0] + "-info.yaml" %}
+{{ lookup('pipe', cmd).split()[2].split(']')[0] }} n{{ loop.index }}
+{% endfor %}
+{% endif %}
+{% endfor %}

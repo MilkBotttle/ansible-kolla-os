@@ -1,0 +1,6 @@
+- name: Add to /etc/hosts
+  blockinfile:
+    path: /etc/hosts
+    block: "{{ lookup('template', './templates/hosts.j2') }}"
+    marker: "# {mark} KOLLA_OS ANSIBLE MANAGED BLOCK"
+  become: true

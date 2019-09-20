@@ -28,6 +28,8 @@
         name: port
     - include_role:
         name: network
+    - include_role:
+        name: etc_hosts
 
 - name: Create servers
   hosts: localhost
@@ -50,7 +52,8 @@
         name: server
     - include_role:
         name: inventory
-
+    - include_role:
+        name: etc_hosts
 - name: Recreate nic-config
   hosts: localhost
   tags: reconfig-network
