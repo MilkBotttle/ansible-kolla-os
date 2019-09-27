@@ -5,8 +5,18 @@
     fixed_ips:
       - ip_address: "{{ ipaddress }}"
   register: p
+  when: use_undercloud
 
-- include_tasks: save.yaml
+- name: Save neutron port info
+  include_tasks: save.yaml
   vars:
     ip: "{{ ipaddress }}"
     id: "{{ p.port.id }}"
+  when: use_undercloud
+
+- name: Save ip info parsed from config
+  include_tasks: save.yaml
+  vars:
+    ip: "{{ ipaddress }}"
+    id: "00000000-0000-0000-0000-000000000000"
+  when: not use_undercloud

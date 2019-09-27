@@ -1,15 +1,3 @@
-- name: "Check {{ role }} base mapping file exist"
-  find:
-    path: "{{ base_file_path }}"
-    patterns: "{{ role }}-mapping.yaml"
-  register: f1
-
-- name: "Check {{ role }} base config file exist"
-  find:
-    path: "{{ base_file_path }}"
-    patterns: "{{ role }}-config.yaml"
-  register: f2
-
 - name: "Generate mapping file"
   copy:
     src: "{{ base_file_path }}/{{ role }}-mapping.yaml"

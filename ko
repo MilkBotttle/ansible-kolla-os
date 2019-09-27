@@ -33,11 +33,16 @@ Options:
         
 
 Commands:
-    destroy             Destroy Servers, Port, Network, Configs
-    create-server       Deploy all server defined
-    generate-inventory  Generate inventory file
-    reconfig-network	Reconfig deployed server network
-    validate            Validate config.yaml and nic-configs.
+    deployed            Create nic-config and inventory from config.yaml
+                        for deployed servers. Each server required network need assign 
+                        a ip in config.yaml, otherwise the 'random' string will mapping
+                        to ip address.
+
+    destroy             Destroy Servers, Port, Network, Configs.
+    create-server       Deploy all server defined.
+    generate-inventory  Generate inventory file.
+    reconfig-network	Reconfig deployed server network.
+    validate            Validate config.yaml and nic-configs. (Only worked for using undercloud)
 EOF
 }
 SHORT_OPTS="hi:c:v"
@@ -105,7 +110,11 @@ if [ "$INVNTORY_REQUIRED" = "true" ];then
     fi
 fi
 
-case "$1" in
+case "$1" in 
+    (deployed)
+        ACTION="Deploy with deployed servers."
+        EXTRA_OPTS="$EXTRA_OPTS --tags deployed-server "
+        ;;
     (destroy)
         ACTION="Destroy all Servers, Port, Netowrk"
         EXTRA_OPTS="$EXTRA_OPTS --tags destroy"

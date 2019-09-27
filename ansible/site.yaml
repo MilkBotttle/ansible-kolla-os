@@ -1,6 +1,7 @@
 ---
 - name: Read variables
   hosts: localhost
+  connection: local
   tags: always
   gather_facts: no
   tasks:
@@ -8,19 +9,21 @@
 
 - name: Validate config
   hosts: localhost
+  connection: local
   tags: validate
   gather_facts: no
   tasks:
     - include_role:
         name: validate
 
-
 - name: Destory all
   hosts: localhost
+  connection: local
   tags: destroy
   gather_facts: no
   vars:
     action: 'destroy'
+    use_undercloud: true
   tasks:
     - include_role:
         name: server
@@ -33,10 +36,12 @@
 
 - name: Create servers
   hosts: localhost
+  connection: local
   tags: create-server
   gather_facts: no
   vars:
     action: 'create'
+    use_undercloud: true
   tasks:
     - include_role:
         name: network
@@ -54,12 +59,15 @@
         name: inventory
     - include_role:
         name: etc_hosts
+
 - name: Recreate nic-config
   hosts: localhost
+  connection: local
   tags: reconfig-network
   gather_facts: no
   vars:
     action: 'reconfig'
+    use_undercloud: true
   tasks:
     - include_role:
         name: port
@@ -67,8 +75,6 @@
         nodes: "{{ item.value }}"
         role: "{{ item.key }}"
       with_dict: "{{ servers }}"
-      tags:
-        - never
     - include_role:
         name: nic_config
 
@@ -98,9 +104,29 @@
 - name: Recreate inventory file
   hosts: localhost
   tags: create-inventory
+  connection: local
   gather_facts: no
   vars:
     action: 'create'
   tasks:
+    - include_role:
+        name: inventory
+
+- name: Create with deployed node
+  hosts: localhost
+  tags: deployed-server
+  connection: local
+  vars:
+    action: 'create'
+    use_undercloud: false
+  tasks:
+    - include_role:
+        name: port
+      vars:
+        nodes: "{{ item.value }}"
+        role: "{{ item.key }}"
+      with_dict: "{{ servers }}"
+    - include_role:
+        name: nic_config
     - include_role:
         name: inventory

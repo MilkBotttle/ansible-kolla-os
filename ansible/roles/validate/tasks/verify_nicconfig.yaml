@@ -48,7 +48,6 @@
     dest: "{{ tmpdir.path }}/{{ item }}-config.yaml"
   with_items: "{{ defined_roles }}"
 
-
 - name: Replace validate nic-config
   replace:
     path: "{{ tmpdir.path }}/{{ item[0] }}-config.yaml"
@@ -57,7 +56,6 @@
   with_nested:
     - "{{ defined_roles }}"
     - "{{ fake_data }}"
-
 
 - name: Test os-net-config with dry_run
   block:
