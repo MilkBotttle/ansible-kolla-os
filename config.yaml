@@ -28,20 +28,20 @@
 
 servers:
   controller:
-    - sosctl01:
-    - sosctl02:
-    - sosctl03:
+    - sosctl01: 10.168.61.8
+    - sosctl02: 10.168.61.9
+    - sosctl03: 10.168.61.10
   compute:
-    - scp201:
-    - scp202:
-    - scp203:
-    - scp204:
-    - sgv101:
-    - sgv102:
-    - sgt401:
+    - scp201: 10.168.61.1
+    - scp202: 10.168.61.2
+    - scp203: 10.168.61.3
+    - scp204: 10.168.61.4
+    - sgv101: 10.168.61.5
+    - sgv102: 10.168.61.6
+    - sgt401: 10.168.61.7
   network:
-    - sedg01:
-    - sedg02:
+    - sedg01: 10.168.61.11
+    - sedg02: 10.168.61.12
 
 # This variable defined the network required for each role.
 # Acourding the list create the port named with `servername-network-port`
@@ -155,7 +155,7 @@ networks:
 
   storage:
     vlan_id: 1023
-    cidr: 10.168.23/24
+    cidr: 10.168.23.0/24
     hosts:
       scp201: 10.168.23.1
       scp202: 10.168.23.2
@@ -169,7 +169,7 @@ networks:
       sosctl03: 10.168.23.10
 
   ctlplane:
-    cidr: 192.168.0.0/24
+    cidr: 10.168.60.0/24
     hosts:
       scp201:    10.168.60.1
       scp202:    10.168.60.2

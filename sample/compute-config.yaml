@@ -1,0 +1,52 @@
+network_config:
+  - type: interface
+    name: nic2
+    use_dhcp: false
+    onboot: false
+
+  - type: interface
+    name: nic1
+    use_dhcp: false
+    addresses:
+      - ip_netmask: ctlplane
+
+  - type: linux_bond
+    name: bond0
+    mtu: 8942
+    bonding_options: "mode=4"
+    members:
+      - type: interface
+        name: nic3
+      - type: interface
+        name: nic4
+
+  - type: vlan
+    vlan_id: internal_vlan_id
+    device: bond0
+    mtu: 8942
+    addresses:
+      - ip_netmask: internal
+    routes:
+      - default: true
+        next_hop: 10.168.1.254
+
+  - type: vlan
+    vlan_id: tunnel_vlan_id
+    mtu: 8942
+    device: bond0
+    addresses:
+      - ip_netmask: tunnel
+
+  - type: vlan
+    vlan_id: octavia_vlan_id
+    mtu: 8942
+    device: bond0
+    addresses:
+      - ip_netmask: octavia
+
+  - type: vlan
+    vlan_id: storage_vlan_id
+    mtu: 8942
+    device: bond0
+    addresses:
+      - ip_netmask: storage

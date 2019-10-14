@@ -1,8 +1,7 @@
 ansible-errors.json
 ansible.cfg
-*-config.yaml
-*-mapping.yaml
-*-info.yaml
+kolla-servers/*.yaml
+nic-configs/*.yaml
 kolla-os-inventory.yaml
 inventory.yaml
 hosts.yaml

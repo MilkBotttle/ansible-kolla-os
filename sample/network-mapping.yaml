@@ -1,0 +1,7 @@
+interface_mapping:
+  nic1: enp28s0f0
+  nic2: enp28s0f1
+  nic3: enp61s0f0
+  nic4: enp61s0f1
+  nic5: enp218s0f0
+  nic6: enp218s0f1

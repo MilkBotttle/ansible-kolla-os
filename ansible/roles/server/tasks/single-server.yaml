@@ -4,9 +4,9 @@
     nic_config_content: "{{ lookup('file','{{ info_file_path }}/{{ servername }}-config.yaml') }}"
     mapping_content: "{{ lookup('file','{{ info_file_path}}/{{ servername }}-mapping.yaml') }}"
 
-- name: Generate userdata
-  set_fact:
-    userdata: "{{ lookup('template','roles/server/templates/userdata.j2.sh') }}"
+    #- name: Generate userdata
+    #  set_fact:
+    #    userdata: "{{ lookup('template','roles/server/templates/userdata.j2.sh') }}"
 
 - block:
     - name: Get baremetal node
@@ -38,4 +38,4 @@
     availability_zone: "{{ availability_zone | default('') }}"
     timeout: 900
     wait: "{{ wait_deploy }}"
-    userdata: "{{ userdata }}"
+    # userdata: "{{ userdata }}"
