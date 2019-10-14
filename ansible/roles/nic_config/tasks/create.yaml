@@ -1,20 +1,9 @@
-- set_fact:
-    nodes_name: |
-      [
-        {% for role, nodes in servers.items() %}
-            {% for node in nodes %}
-                '{{ node.keys()[0] }}',
-            {% endfor %}
-        {% endfor %}
-      ]
-
 - include_tasks: copy.yaml
   vars:
-    role: "{{ item.key }}"
-    nodes: "{{ item.value }}"
-  with_dict: "{{ servers }}"
+    role: "{{ item['role'] }}"
+    nodename: "{{ item['name'] }}"
 
 - include_tasks: config.yaml
   vars:
-    servername: "{{ item }}"
-  with_items: "{{ nodes_name }}"
+    servername: "{{ item['name'] }}"
+

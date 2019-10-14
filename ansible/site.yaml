@@ -6,6 +6,11 @@
   gather_facts: no
   tasks:
     - include_vars: "{{ config_path | default('../config.yaml') }}"
+    - parse_config:
+        servers: "{{ servers }}"
+        networks: "{{ networks }}"
+        network_require: "{{ role_used_network }}"
+      register: p
 
 - name: Validate config
   hosts: localhost
@@ -45,16 +50,19 @@
   tasks:
     - include_role:
         name: network
+
     - include_role:
         name: port
-      vars:
-        nodes: "{{ item.value }}"
-        role: "{{ item.key }}"
-      with_dict: "{{ servers }}"
+      with_items: "{{ p.parsed_config }}"
+
     - include_role:
         name: nic_config
+      with_items: "{{ p.parsed_config }}"
+
     - include_role:
-        name: server
+        name: servers
+      with_items: "{{ p.parsed_config }}"
+
     - include_role:
         name: inventory
     - include_role:
@@ -71,10 +79,7 @@
   tasks:
     - include_role:
         name: port
-      vars:
-        nodes: "{{ item.value }}"
-        role: "{{ item.key }}"
-      with_dict: "{{ servers }}"
+      with_items: "{{ p.parsed_config }}"
     - include_role:
         name: nic_config
 
@@ -122,10 +127,7 @@
   tasks:
     - include_role:
         name: port
-      vars:
-        nodes: "{{ item.value }}"
-        role: "{{ item.key }}"
-      with_dict: "{{ servers }}"
+      with_items: "{{ p.parsed_config }}"
     - include_role:
         name: nic_config
     - include_role:
