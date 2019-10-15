@@ -132,7 +132,7 @@ case "$1" in
         EXTRA_OPTS="$EXTRA_OPTS --tags reconfig-network"
         ;;
     (validate)
-        VALIDATE_OPTS="--tags validate"
+        EXTRA_OPTS="$EXTRA_OPTS --tags validate"
         ;;
     (*)
         usage
