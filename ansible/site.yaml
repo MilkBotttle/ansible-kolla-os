@@ -18,8 +18,10 @@
   tags: validate
   gather_facts: no
   tasks:
-    - include_role:
-        name: validate
+    - validate_config:
+        servers: "{{ servers }}"
+        networks: "{{ networks}}"
+        role_used_network: "{{ role_used_network }}"
 
 - name: Destory all
   hosts: localhost
@@ -65,6 +67,7 @@
 
     - include_role:
         name: inventory
+
     - include_role:
         name: etc_hosts
 
