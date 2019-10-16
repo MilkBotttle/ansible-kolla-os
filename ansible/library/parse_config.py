@@ -29,7 +29,6 @@ def parse(servers,networks,network_require):
                 else:
                     node_info.update({net: 'random'})
             parsed_config.append(node_info)
-
     return parsed_config
 
 def run_module():
@@ -48,9 +47,10 @@ def run_module():
         argument_spec=module_args,
         supports_check_mode=False
     )
-    result['parsed_config'] = parse(module.params['servers'],
-                                    module.params['networks'],
-                                    module.params['network_require'])
+    result['parsed_config'] = parse(
+                                module.params['servers'],
+                                module.params['networks'],
+                                module.params['network_require'])
     module.exit_json(**result)
 
 def main():

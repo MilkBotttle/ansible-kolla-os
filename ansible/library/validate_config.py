@@ -90,7 +90,9 @@ def run_module():
     try:
         validate_servers(module.params['servers'])
         validate_role_used_network(module.params['role_used_network'])
-        validate_networks(module.params['networks'], all_require_net, all_nodes_name)
+        validate_networks(
+            module.params['networks'],
+            all_require_net, all_nodes_name)
         if module.params['vips']:
             validate_vips(module.params['networks'],module.params['vips'])
     except AnsibleError as e:
