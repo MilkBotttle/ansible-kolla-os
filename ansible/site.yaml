@@ -37,7 +37,8 @@
         servers: "{{ servers }}"
         networks: "{{ networks }}"
         network_require: "{{ role_used_network }}"
-      register: p
+      register: config_reg
+    - debug: var=config_reg.parsed_config
 
 - name: Destory all
   hosts: localhost
@@ -71,19 +72,29 @@
 
     - include_role:
         name: port
-      with_items: "{{ p.parsed_config }}"
+      with_items: "{{ config_reg.parsed_config }}"
 
     - include_role:
         name: nic_config
-      with_items: "{{ p.parsed_config }}"
+      with_items: "{{ config_reg.parsed_config }}"
 
     - include_role:
-        name: servers
-      with_items: "{{ p.parsed_config }}"
+        name: server
+      vars:
+        server: "{{ item }}"
+      with_items: "{{ config_reg.parsed_config }}"
 
     - include_role:
         name: inventory
 
+- name: Update /etc/hosts
+  hosts: localhost
+  connection: local
+  tags: etc-hosts
+  gather_facts: no
+  vars:
+    action: 'create'
+  tasks:
     - include_role:
         name: etc_hosts
 

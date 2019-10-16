@@ -8,9 +8,9 @@ from ansible.module_utils.basic import AnsibleModule
 def parse(servers,networks,network_require):
     parsed_config=[]
     for role, nodes in servers.items():
-        node_info = {}
-        node_info.update({"role": role})
         for node in nodes:
+            node_info = {}
+            node_info.update({"role": role})
             name = node.keys()[0]
             node_info.update({"name": name})
 

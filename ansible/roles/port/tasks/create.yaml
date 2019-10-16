@@ -26,7 +26,7 @@
   when:
     - node_info[item] != 'random'
     - use_undercloud
-  with_items: "{{ ['ctlplane'] + role_used_network[nodeinfo['role']]}}"
+  with_items: "{{ ['ctlplane'] + role_used_network[node_info['role']]}}"
 
 - name: Create random ip ports
   include_tasks: random.yaml
@@ -36,7 +36,7 @@
   when:
     - node_info[item] == 'random'
     - use_undercloud
-  with_items: "{{ ['ctlplane'] + role_used_network[nodeinfo['role']]}}"
+  with_items: "{{ ['ctlplane'] + role_used_network[node_info['role']]}}"
 
 - name: Create ip info
   include_tasks: static.yaml
@@ -46,4 +46,4 @@
     ipaddress: "{{ node_info[item] }}"
   when:
     - not use_undercloud
-  with_items: "{{ ['ctlplane'] + role_used_network[nodeinfo['role']]}}"
+  with_items: "{{ ['ctlplane'] + role_used_network[node_info['role']]}}"
