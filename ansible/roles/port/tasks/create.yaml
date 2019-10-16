@@ -2,11 +2,13 @@
 
 - name: Create vips
   os_port:
-    name: "{{ item.keys()[0] }}_vip"
-    network: "{{ item.keys()[0] }}"
+    name: "{{ vip.keys()[0] }}_vip"
+    network: "{{ vip.keys()[0] }}"
     fixed_ips:
-      - ip_address: "{{ item.values()[0] }}"
+      - ip_address: "{{ vip.values()[0] }}"
   with_items: "{{ vips }}"
+  loop_control:
+    loop_var: vip
   when:
     - vips is defined
     - use_undercloud
@@ -24,7 +26,7 @@
   when:
     - node_info[item] != 'random'
     - use_undercloud
-  with_items: "{{ network_require }}"
+  with_items: "{{ ['ctlplane'] + role_used_network[node_info['role']]}}"
 
 - name: Create random ip ports
   include_tasks: random.yaml
@@ -34,7 +36,7 @@
   when:
     - node_info[item] == 'random'
     - use_undercloud
-  with_items: "{{ network_require }}"
+  with_items: "{{ ['ctlplane'] + role_used_network[node_info['role']]}}"
 
 - name: Create ip info
   include_tasks: static.yaml
@@ -44,4 +46,4 @@
     ipaddress: "{{ node_info[item] }}"
   when:
     - not use_undercloud
-  with_items: "{{ network_require }}"
+  with_items: "{{ ['ctlplane'] + role_used_network[node_info['role']]}}"

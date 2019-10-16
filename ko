@@ -30,6 +30,7 @@ Options:
     --inventory, -i     Specify path to ansible inventory file
     --hosts             Specify hosts or group to run plays required --inventory 
     --config, -c        Config file path, default is config.yaml
+    --update-etc-hosts  Update /etc/hosts, add alias for ssh, use this option with create-server.
         
 
 Commands:
@@ -43,6 +44,7 @@ Commands:
     generate-inventory  Generate inventory file.
     reconfig-network	Reconfig deployed server network.
     validate            Validate config.yaml and nic-configs. (Only worked for using undercloud)
+    update-etc-hosts    Update /etc/hosts, add alias for ssh.
 EOF
 }
 SHORT_OPTS="hi:c:v"
@@ -86,6 +88,10 @@ while [ "$#" -gt 0 ]; do
         (--verbose|-v)
             VERBOSITY="$VERBOSITY --verbose"
             shift
+            ;;
+        (--update-etc-hosts)
+            EXTRA_OPTS="$EXTRA_OPTS --tags etc-hosts"
+            shift 
             ;;
         (--help|-h)
             usage
@@ -132,7 +138,10 @@ case "$1" in
         EXTRA_OPTS="$EXTRA_OPTS --tags reconfig-network"
         ;;
     (validate)
-        VALIDATE_OPTS="--tags validate"
+        EXTRA_OPTS="$EXTRA_OPTS --tags validate"
+        ;;
+    (update-etc-hosts)
+        EXTRA_OPTS="--tags etc-hosts"
         ;;
     (*)
         usage

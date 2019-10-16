@@ -7,14 +7,38 @@
   tasks:
     - include_vars: "{{ config_path | default('../config.yaml') }}"
 
-- name: Validate config
+- name: Validate Config
   hosts: localhost
   connection: local
   tags: validate
   gather_facts: no
   tasks:
-    - include_role:
-        name: validate
+    - validate_config:
+        servers: "{{ servers }}"
+        networks: "{{ networks}}"
+        role_used_network: "{{ role_used_network }}"
+        vips: "{{ vips | default([]) }}"
+      register: validate
+    - debug:
+        msg: "{{ validate.msg }}"
+
+- name: Parse Config
+  hosts: localhost
+  connection: local
+  tags:
+    - 'destroy'
+    - 'create-server'
+    - 'reconfig-network'
+    - 'create-inventory'
+    - 'deployed-server'
+  gather_facts: no
+  tasks:
+    - parse_config:
+        servers: "{{ servers }}"
+        networks: "{{ networks }}"
+        network_require: "{{ role_used_network }}"
+      register: config_reg
+    - debug: var=config_reg.parsed_config
 
 - name: Destory all
   hosts: localhost
@@ -45,18 +69,32 @@
   tasks:
     - include_role:
         name: network
+
     - include_role:
         name: port
-      vars:
-        nodes: "{{ item.value }}"
-        role: "{{ item.key }}"
-      with_dict: "{{ servers }}"
+      with_items: "{{ config_reg.parsed_config }}"
+
     - include_role:
         name: nic_config
+      with_items: "{{ config_reg.parsed_config }}"
+
     - include_role:
         name: server
+      vars:
+        server: "{{ item }}"
+      with_items: "{{ config_reg.parsed_config }}"
+
     - include_role:
         name: inventory
+
+- name: Update /etc/hosts
+  hosts: localhost
+  connection: local
+  tags: etc-hosts
+  gather_facts: no
+  vars:
+    action: 'create'
+  tasks:
     - include_role:
         name: etc_hosts
 
@@ -71,16 +109,14 @@
   tasks:
     - include_role:
         name: port
-      vars:
-        nodes: "{{ item.value }}"
-        role: "{{ item.key }}"
-      with_dict: "{{ servers }}"
+      with_items: "{{ p.parsed_config }}"
     - include_role:
         name: nic_config
 
 - name: Apply nic-config
   tags: reconfig-network
   hosts: "{{ host | default('localhost') }}"
+  gather_facts: no
   tasks:
     - name: Create folder
       file:
@@ -116,16 +152,14 @@
   hosts: localhost
   tags: deployed-server
   connection: local
+  gather_facts: no
   vars:
     action: 'create'
     use_undercloud: false
   tasks:
     - include_role:
         name: port
-      vars:
-        nodes: "{{ item.value }}"
-        role: "{{ item.key }}"
-      with_dict: "{{ servers }}"
+      with_items: "{{ p.parsed_config }}"
     - include_role:
         name: nic_config
     - include_role:
