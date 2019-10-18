@@ -6,35 +6,14 @@
 {% endfor %}
 {% endfor %}
 
-
-[controller]
 {% for role, nodes in servers.items() %}
-{% if role == 'controller' %}
+
+[{{ role  }}]
+
 {% for node in nodes %}
-{% set cmd= "grep ctlplane {{ info_file_path }}/" + node.keys()[0] + "-info.yaml" %}
-{{ node.keys()[0] }} ansible_host={{ lookup('pipe', cmd).split()[2].split(']')[0] }} ansible_ssh_user={{ ssh_user }}
-{% endfor %}
-{% endif %}
+{% set cmd= "grep ctlplane {{ info_file_path  }}/" + node.keys()[0] + "-info.yaml" %}
+{{ node.keys()[0]  }} ansible_host={{ lookup('pipe', cmd).split()[2].split(']')[0]  }} ansible_ssh_user={{ ssh_user  }}
+
 {% endfor %}
 
-
-[compute]
-{% for role, nodes in servers.items() %}
-{% if role == 'compute' %}
-{% for node in nodes %}
-{% set cmd= "grep ctlplane {{ info_file_path }}/" + node.keys()[0] + "-info.yaml" %}
-{{ node.keys()[0] }} ansible_host={{ lookup('pipe', cmd).split()[2].split(']')[0] }} ansible_ssh_user={{ ssh_user }}
-{% endfor %}
-{% endif %}
-{% endfor %}
-
-
-[network]
-{% for role, nodes in servers.items() %}
-{% if role == 'network' %}
-{% for node in nodes %}
-{% set cmd= "grep ctlplane {{ info_file_path }}/" + node.keys()[0] + "-info.yaml" %}
-{{ node.keys()[0] }} ansible_host={{ lookup('pipe', cmd).split()[2].split(']')[0] }} ansible_ssh_user={{ ssh_user }}
-{% endfor %}
-{% endif %}
-{% endfor %}
+{% endfor%}

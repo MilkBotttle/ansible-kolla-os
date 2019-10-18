@@ -15,10 +15,16 @@ def validate_servers(servers):
             if type(node) is not dict:
                 raise AnsibleError('The node in %s servers section is not a correct dict.' % role)
 
-def validate_role_used_network(role_used_network):
-   for role, required in role_used_network.items():
-       if type(required) is not list:
-           raise AnsibleError('The %s role value, in role_used_network is not a correct list.' % role)
+def validate_role_used_network(role_used_network, all_roles):
+    used_net_all_roles = role_used_network.keys()
+    for role, required in role_used_network.items():
+        if type(required) is not list:
+            raise AnsibleError('The %s role value, in role_used_network is not a correct list.' % role)
+        if role not in all_roles:
+            raise AnsibleError('The %s role not defined in servers.' % role)
+    for r in all_roles:
+        if r not in used_net_all_roles:
+            raise AnsibleError('The %s role defined in servers but not defined in role_used_network' % r)
 
 def validate_networks(networks, all_require_net, all_nodes_name):
     for net in all_require_net:
@@ -80,7 +86,9 @@ def run_module():
         supports_check_mode=False
     )
     all_nodes_name = []
+    all_roles = []
     for role, nodes in module.params['servers'].items():
+        all_roles.append(role)
         for n in nodes:
             all_nodes_name.append(n.keys()[0])
     all_require_net = []
@@ -89,7 +97,8 @@ def run_module():
 
     try:
         validate_servers(module.params['servers'])
-        validate_role_used_network(module.params['role_used_network'])
+        validate_role_used_network(
+            module.params['role_used_network'], all_roles)
         validate_networks(
             module.params['networks'],
             all_require_net, all_nodes_name)

@@ -19,12 +19,13 @@ def parse(servers,networks,network_require):
             else:
                 node_info.update({"baremetal_node": "random"})
 
-            if networks['ctlplane']['hosts'][name]:
+            if name in networks['ctlplane']['hosts']:
                 node_info.update({"ctlplane": networks['ctlplane']['hosts'][name]})
             else:
                 node_info.update({"ctlplane": "random"})
+
             for net in network_require[role]:
-                if networks[net]['hosts'][name]:
+                if name in networks[net]['hosts']:
                     node_info.update({net: networks[net]['hosts'][name]})
                 else:
                     node_info.update({net: 'random'})
