@@ -1,3 +1,2 @@
-name,baremetal_node,role,ctlplane,internal,external,storage,tenant,tunnel
-scp201,10.168.61.1,compute,10.168.60.1,10.168.1.1,,10.168.23.1,,
-scp202,10.168.61.2,control,10.168.60.3,10.168.1.5,,10.168.23.22,10.192.22.30,
+name,baremetal_node,role,ctlplane,internal,external
+ocn2,ocn2,controller,192.168.24.10,10.168.1.100,10.168.2.100

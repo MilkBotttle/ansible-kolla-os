@@ -1,4 +1,4 @@
-name,cidr,vlan_id
+name,cidr,vlan
 tunnel,10.168.3.0/24,1026
 internal,10.168.1.0/24,1025
 external,10.168.2.0/24,1024

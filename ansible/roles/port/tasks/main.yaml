@@ -11,10 +11,10 @@
   when:
     - vips is defined
     - use_undercloud
-    - action == 'create'
+    - deploy_action == 'create'
 
-- include_tasks: "{{ action }}.yaml"
-  when: action != 'destroy'
+- include_tasks: "{{ deploy_action }}.yaml"
+  when: deploy_action != 'destroy'
 
 - include_tasks: destroy.yaml
-  when: action == 'destroy'
+  when: deploy_action == 'destroy'

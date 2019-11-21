@@ -95,11 +95,11 @@ while [ "$#" -gt 0 ]; do
             ;;
         (--nodes-csv)
             EXTRA_OPTS="$EXTRA_OPTS -e nodes_csv_path=$2"
-            shift
+            shift 2
             ;;
         (--networks-csv)
             EXTRA_OPTS="$EXTRA_OPTS -e networks_csv_path=$2"
-            shift
+            shift 2
             ;;
         (--help|-h)
             usage
@@ -131,23 +131,23 @@ case "$1" in
         ;;
     (destroy)
         ACTION="Destroy all Servers, Port, Netowrk"
-        EXTRA_OPTS="$EXTRA_OPTS --tags destroy -e action=destroy"
+        EXTRA_OPTS="$EXTRA_OPTS --tags destroy -e deploy_action=destroy"
         ;;
     (full-create-server)
         ACTION="Create network, port, server"
-        EXTRA_OPTS="$EXTRA_OPTS --tags full-create-server -e action=create"
+        EXTRA_OPTS="$EXTRA_OPTS --tags full-create-server -e deploy_action=create"
         ;;
     (create-server)
         ACTION="Deploy all defined servers not update inventory"
-        EXTRA_OPTS="$EXTRA_OPTS --tags create-server -e action=create"
+        EXTRA_OPTS="$EXTRA_OPTS --tags create-server -e deploy_action=create"
         ;;
     (generate-inventory)
         ACTION="Generate invntory"
-        EXTRA_OPTS="$EXTRA_OPTS --tags create-inventory -e action=create"
+        EXTRA_OPTS="$EXTRA_OPTS --tags create-inventory -e deploy_action=create"
         ;;
     (network-reconfig)
         ACTION="Reconfig deployed server network"
-        EXTRA_OPTS="$EXTRA_OPTS --tags reconfig-network -e action=reconfig"
+        EXTRA_OPTS="$EXTRA_OPTS --tags reconfig-network -e deploy_action=reconfig"
         ;;
     (validate)
         EXTRA_OPTS="$EXTRA_OPTS --tags validate"

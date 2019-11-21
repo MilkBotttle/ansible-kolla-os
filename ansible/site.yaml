@@ -9,6 +9,7 @@
     - read_csv:
         path: "{{ nodes_csv_path | default('../nodes.csv') }}"
       register: nodes_csv_list
+
     - read_csv:
         path: "{{ networks_csv_path | default('../networks.csv') }}"
       register: networks_csv_list
@@ -20,6 +21,7 @@
         path: "{{ networks_csv_path | default('../networks.csv') }}"
         key: name
       register: networks_csv_dict
+
 
 - name: Validate Config
   hosts: localhost
@@ -36,9 +38,55 @@
     - debug:
         msg: "{{ validate.msg }}"
 
-- name: Deploy Tasks
+
+- name: Full Create Server
   hosts: localhost
   connection: local
+  gather_facts: no
+  tags:
+    - full-create-server
+  tasks:
+    - include_role:
+        name: network
+      vars:
+        - name: "{{ item.name }}"
+        - cidr: "{{ item.cidr }}"
+      with_items: "{{ networks_csv_list.list }}"
+    - fail:
+    - include_role:
+        name: port
+      vars:
+        node_info: "{{ item }}"
+      with_dict: "{{ networks_csv_dict.dict }}"
+    - include_role:
+        name: nic_config
+      vars:
+        role: "{{ item.role }}"
+        name: "{{ item.name }}"
+      with_items: "{{ nodes_csv_list.list }}"
+
+
+- name: Create Server
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tags:
+    - full-create-server
+    - create-server
+  tasks:
+    - include_role:
+        name: server
+      vars:
+        server: "{{ item }}"
+      with_items: "{{ nodes_csv_list.list }}"
+
+
+- name: Network Config
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tags:
+    - network-config
   tasks:
     - include_role:
         name: network
@@ -46,45 +94,27 @@
         - network: "{{ item.name }}"
         - cidr: "{{ item.cidr }}"
       with_items: "{{ networks_csv_list.list }}"
-      tags:
-        - full-create-server
-        - network-config
 
     - include_role:
         name: port
       vars:
         node_info: "{{ item }}"
       with_dict: "{{ networks_csv_dict.dict }}"
-      tags:
-        - full-create-server
-        - network-config
 
     - include_role:
         name: nic_config
       vars:
         role: "{{ item.role }}"
         name: "{{ item.name }}"
-      tags:
-        - full-create-server
-        - network-config
       with_items: "{{ nodes_csv_list.list }}"
 
 
-    - include_role:
-        name: server
-      vars:
-        server: "{{ item }}"
-      with_items: "{{ nodes_csv_list.list }}"
-      tags:
-        - full-create-server
-        - create-server
-
-- name: Apply nic-config
-  tags:
-    - reconfig-network
+- name: Reconfig Network
   hosts: localhost
   connection: local
   gather_facts: no
+  tags:
+    - reconfig-network
   tasks:
     - fail:
         msg: "Reconfig network need host, use --hosts and --inventory"
@@ -94,22 +124,20 @@
       vars:
         role: "{{ item.role }}"
         name: "{{ item.name }}"
-      tags:
-        - reconfig-network
-      with_inventory_hostname: "{{ host.split(',') | default('') }}"
+      with_inventory_hostnames: "{{ host.split(',') | default('') }}"
+
 
 - name: Apply nic-config
-  tags:
-    - reconfig-network
   become: true
   hosts: "{{ host | default('localhost') }}"
   gather_facts: no
+  tags:
+    - reconfig-network
   tasks:
     - name: Create folder
       file:
         state: directory
         dest: '/etc/os-net-config'
-
     - name: Copy nic config file
       copy:
         src: "{{ playbook_dir | dirname }}/kolla-servers/{{ inventory_hostname }}-config.yaml"
@@ -119,11 +147,11 @@
         src: "{{ playbook_dir | dirname }}/kolla-servers/{{ inventory_hostname }}-mapping.yaml"
         dest: "/etc/os-net-config/mapping.yaml"
       ignore_errors: yes
-
     - name: Apply nic config with async
       command: os-net-config
       async: 180
       poll: 5
+
 
 - name: Update /etc/hosts
   hosts: localhost
@@ -131,7 +159,7 @@
   tags: etc-hosts
   gather_facts: no
   vars:
-    action: 'create'
+    deploy_action: 'create'
   tasks:
     - include_role:
         name: etc_hosts
@@ -145,7 +173,7 @@
   connection: local
   gather_facts: no
   vars:
-    action: 'create'
+    deploy_action: 'create'
   tasks:
     - include_role:
         name: inventory
@@ -156,7 +184,7 @@
   connection: local
   gather_facts: no
   vars:
-    action: 'create'
+    deploy_action: 'create'
     use_undercloud: false
   tasks:
     - include_role:
