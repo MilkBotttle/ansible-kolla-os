@@ -28,27 +28,27 @@ Options:
     --wait              Wait server deploy complete
     --verbose, -v       Increase verbosity of ansible-playbook
     --inventory, -i     Specify path to ansible inventory file
-    --hosts             Specify hosts or group to run plays required --inventory 
+    --hosts             Specify hosts or group use comma split string to run plays required --inventory 
     --config, -c        Config file path, default is config.yaml
+    --nodes-csv         Nodes csv file path, default is nodes.csv
+    --networks-csv      Networks csv file path, default is networks.csv
     --update-etc-hosts  Update /etc/hosts, add alias for ssh, use this option with create-server.
         
 
 Commands:
     deployed            Create nic-config and inventory from config.yaml
-                        for deployed servers. Each server required network need assign 
-                        a ip in config.yaml, otherwise the 'random' string will mapping
-                        to ip address.
-
+                        for deployed servers. Each server required network need assign
+                        a ip in config.yaml.
     destroy             Destroy Servers, Port, Network, Configs.
     create-server       Deploy all server defined.
     generate-inventory  Generate inventory file.
-    reconfig-network	Reconfig deployed server network.
+    reconfig-network	Reconfig deployed server network, require --inventory and --hosts
     validate            Validate config.yaml and nic-configs. (Only worked for using undercloud)
     update-etc-hosts    Update /etc/hosts, add alias for ssh.
 EOF
 }
 SHORT_OPTS="hi:c:v"
-LONG_OPTS="help,wait,verbose,validate,inventory:,hosts:,config:"
+LONG_OPTS="help,wait,verbose,validate,inventory:,hosts:,config:,nodes-csv:,networks-csv:,update-etc-hosts"
 
 RAW_ARGS="$*"
 ARGS=$(getopt -o "${SHORT_OPTS}" -l "${LONG_OPTS}" --name "$0" -- "$@") || { usage >&2; exit 2; }
@@ -93,6 +93,14 @@ while [ "$#" -gt 0 ]; do
             EXTRA_OPTS="$EXTRA_OPTS --tags etc-hosts"
             shift 
             ;;
+        (--nodes-csv)
+            EXTRA_OPTS="$EXTRA_OPTS -e nodes_csv_path=$2"
+            shift
+            ;;
+        (--networks-csv)
+            EXTRA_OPTS="$EXTRA_OPTS -e networks_csv_path=$2"
+            shift
+            ;;
         (--help|-h)
             usage
             shift
@@ -123,19 +131,23 @@ case "$1" in
         ;;
     (destroy)
         ACTION="Destroy all Servers, Port, Netowrk"
-        EXTRA_OPTS="$EXTRA_OPTS --tags destroy"
+        EXTRA_OPTS="$EXTRA_OPTS --tags destroy -e action=destroy"
+        ;;
+    (full-create-server)
+        ACTION="Create network, port, server"
+        EXTRA_OPTS="$EXTRA_OPTS --tags full-create-server -e action=create"
         ;;
     (create-server)
-        ACTION="Deploy all defined servers"
-        EXTRA_OPTS="$EXTRA_OPTS --tags create-server"
+        ACTION="Deploy all defined servers not update inventory"
+        EXTRA_OPTS="$EXTRA_OPTS --tags create-server -e action=create"
         ;;
     (generate-inventory)
         ACTION="Generate invntory"
-        EXTRA_OPTS="$EXTRA_OPTS --tags create-inventory"
+        EXTRA_OPTS="$EXTRA_OPTS --tags create-inventory -e action=create"
         ;;
-    (reconfig-network)
+    (network-reconfig)
         ACTION="Reconfig deployed server network"
-        EXTRA_OPTS="$EXTRA_OPTS --tags reconfig-network"
+        EXTRA_OPTS="$EXTRA_OPTS --tags reconfig-network -e action=reconfig"
         ;;
     (validate)
         EXTRA_OPTS="$EXTRA_OPTS --tags validate"

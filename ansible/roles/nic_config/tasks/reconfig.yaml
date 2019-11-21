@@ -1,1 +1,6 @@
+
 - include_tasks: create.yaml
+  vars:
+    role: "{{ nodes_csv_dict['dict'][item]['role'] }}"
+    name: "{{ item }}"
+  with_inventory_hostname: "{{ host.split(',') }}"

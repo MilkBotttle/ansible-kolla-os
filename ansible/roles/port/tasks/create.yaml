@@ -1,49 +1,11 @@
 ---
-
-- name: Create vips
-  os_port:
-    name: "{{ vip.keys()[0] }}_vip"
-    network: "{{ vip.keys()[0] }}"
-    fixed_ips:
-      - ip_address: "{{ vip.values()[0] }}"
-  with_items: "{{ vips }}"
-  loop_control:
-    loop_var: vip
-  when:
-    - vips is defined
-    - use_undercloud
-
-- name: Get node info
-  set_fact:
-    node_info: "{{ item }}"
-
 - name: Create fixed-ip ports
   include_tasks: static.yaml
   vars:
     network: "{{ item }}"
-    servername: "{{ node_info.name }}"
-    ipaddress: "{{ node_info[item] }}"
+    servername: "{{ node_info.key }}"
+    ipaddress: "{{ node_info.value[item] }}"
   when:
-    - node_info[item] != 'random'
+    - node_info[item] != ''
     - use_undercloud
-  with_items: "{{ ['ctlplane'] + role_used_network[node_info['role']]}}"
-
-- name: Create random ip ports
-  include_tasks: random.yaml
-  vars:
-    network: "{{ item }}"
-    servername: "{{ node_info.name }}"
-  when:
-    - node_info[item] == 'random'
-    - use_undercloud
-  with_items: "{{ ['ctlplane'] + role_used_network[node_info['role']]}}"
-
-- name: Create ip info
-  include_tasks: static.yaml
-  vars:
-    network: "{{ item }}"
-    servername: "{{ node_info.name }}"
-    ipaddress: "{{ node_info[item] }}"
-  when:
-    - not use_undercloud
   with_items: "{{ ['ctlplane'] + role_used_network[node_info['role']]}}"

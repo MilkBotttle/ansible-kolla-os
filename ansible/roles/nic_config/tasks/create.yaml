@@ -1,9 +1,9 @@
 - include_tasks: copy.yaml
   vars:
-    role: "{{ item['role'] }}"
-    nodename: "{{ item['name'] }}"
+    role: "{{ role }}"
+    nodename: "{{ name }}"
 
 - include_tasks: config.yaml
   vars:
-    servername: "{{ item['name'] }}"
+    servername: "{{ name }}"
 

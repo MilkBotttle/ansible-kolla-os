@@ -17,7 +17,7 @@
 
     - set_fact:
         availability_zone: "nova:{{ host_name.stdout }}:{{ baremetalnode_uuid.stdout }}"
-  when:  baremetal_node != 'random'
+  when:  baremetal_node != ''
 
 - name: "Read {{ servername }} ip info"
   include_vars: "{{ info_file_path }}/{{ servername }}-info.yaml"

@@ -3,7 +3,7 @@ Playbooks for deploy baremetal node for kolla-ansible use TripleO
 undercloud.
 
 # Requirement
-* Ansible > 2.4
+* Ansible >= 2.8
 * openstacksdk
 * TripleO undercloud
 * git
