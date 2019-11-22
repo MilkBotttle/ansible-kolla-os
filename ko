@@ -11,7 +11,7 @@ function find_base {
     fi
 }
 function process_cmd {
-    echo "$ACTION : $CMD"
+    echo "$ACTION: $CMD"
     $CMD
     if [[ $? -ne 0 ]]; then
         echo "Command failed $CMD"
@@ -24,27 +24,31 @@ function usage {
 Usage: $0 COMMAND [--options]
 
 Options:
+    --config, -c        Config file path, default is config.yaml
     --help, -h          Show this usage information
     --wait              Wait server deploy complete
     --verbose, -v       Increase verbosity of ansible-playbook
     --inventory, -i     Specify path to ansible inventory file
     --hosts             Specify hosts or group use comma split string to run plays required --inventory 
-    --config, -c        Config file path, default is config.yaml
     --nodes-csv         Nodes csv file path, default is nodes.csv
     --networks-csv      Networks csv file path, default is networks.csv
     --update-etc-hosts  Update /etc/hosts, add alias for ssh, use this option with create-server.
         
 
 Commands:
-    deployed            Create nic-config and inventory from config.yaml
-                        for deployed servers. Each server required network need assign
-                        a ip in config.yaml.
-    destroy             Destroy Servers, Port, Network, Configs.
-    create-server       Deploy all server defined.
-    generate-inventory  Generate inventory file.
-    reconfig-network	Reconfig deployed server network, require --inventory and --hosts
-    validate            Validate config.yaml and nic-configs. (Only worked for using undercloud)
-    update-etc-hosts    Update /etc/hosts, add alias for ssh.
+    apply-nic-config        Apply nic-config to deployed ndoe
+    full-create-server      Create network and deploy servers
+    create-server           Deploy all server defined.
+    deployed                Create nic-config and inventory from config.yaml
+                            for deployed servers. Each server required network need assign
+                            a ip in config.yaml.
+    destroy                 Destroy Servers, Port, Network, Configs.
+    generate-inventory      Generate inventory file.
+    reconfig-network        Reconfig server nic config for all nodes, use --inventory and --hosts for specific node or group.
+    update-network-config   Update port and nic config
+    update-etc-hosts        Update /etc/hosts, add alias for ssh.
+    update-nic-config       Update all nic config without apply, use --inventory and --hosts for specific node or group.
+    validate                Validate config.yaml and nic-configs, for using using undercloud
 EOF
 }
 SHORT_OPTS="hi:c:v"
@@ -137,6 +141,10 @@ case "$1" in
         ACTION="Create network, port, server"
         EXTRA_OPTS="$EXTRA_OPTS --tags full-create-server -e deploy_action=create"
         ;;
+    (update-network-config)
+        ACTION="Update network port and nic config"
+        EXTRA_OPTS="$EXTRA_OPTS --tags update-network-config -e deploy_action=reconfig"
+        ;;
     (create-server)
         ACTION="Deploy all defined servers not update inventory"
         EXTRA_OPTS="$EXTRA_OPTS --tags create-server -e deploy_action=create"
@@ -145,7 +153,33 @@ case "$1" in
         ACTION="Generate invntory"
         EXTRA_OPTS="$EXTRA_OPTS --tags create-inventory -e deploy_action=create"
         ;;
-    (network-reconfig)
+    (update-nic-config)
+        if [ "x$INVENTORY" = "x" ];then 
+            INVENTORY='-i kolla-os-inventory.yaml'
+        fi 
+        if [ "x$HOSTS" = "x" ];then 
+            HOSTS="-e host=all"
+        fi
+        ACTION="Update nic config only"
+        EXTRA_OPTS="$EXTRA_OPTS -e deploy_action=reconfig --tags update-nic-config"
+        ;;
+    (apply-nic-config)
+        if [ "x$INVENTORY" = "x" ];then 
+            INVENTORY='-i kolla-os-inventory.yaml'
+        fi 
+        if [ "x$HOSTS" = "x" ];then 
+            HOSTS="-e host=all"
+        fi
+        ACTION="Apply nic config to nodes"
+        EXTRA_OPTS="$EXTRA_OPTS --tags apply-nic-config"
+        ;;
+    (reconfig-network)
+        if [ "x$INVENTORY" = "x" ];then 
+            INVENTORY='-i kolla-os-inventory.yaml'
+        fi 
+        if [ "x$HOSTS" = "x" ];then 
+            HOSTS="-e host=all"
+        fi
         ACTION="Reconfig deployed server network"
         EXTRA_OPTS="$EXTRA_OPTS --tags reconfig-network -e deploy_action=reconfig"
         ;;
@@ -162,4 +196,5 @@ case "$1" in
 esac
 
 CMD="ansible-playbook $INVENTORY $HOSTS $VALIDATE_OPTS $EXTRA_OPTS $PLAYBOOK $VERBOSITY"
+#echo $CMD
 process_cmd

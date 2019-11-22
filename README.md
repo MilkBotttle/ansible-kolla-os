@@ -15,10 +15,11 @@ undercloud.
 # Getting Started
 > After create-server the node info and nic-configs saved in
 > `kolla-servers` folder.
-* Edit `config.yaml` defined the nodes and network information
+* Edit `config.yaml` defined the role required network, vip, gateway
+* Edit `nodes.csv` defined the node info.
+* Edit `networks.csv` defined the network info.
 * Add base network config files in `nic-configs` folder, named with
   `rolename-config.yaml`, `rolename-mapping.yaml`.
-* Validate configs run `ko validate`
 * Deploy OS run `ko create-server`
 
 # Configure deployed node network or reconfig network

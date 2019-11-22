@@ -1,0 +1,5 @@
+- include_tasks: create.yaml
+  vars:
+    name: "{{ item }}"
+    node_info: "{{ nodes_csv_list.list | selectattr('name','search', item) | first }}"
+  with_inventory_hostnames: "{{ host.split(',') }}"

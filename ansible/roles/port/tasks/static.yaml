@@ -1,4 +1,4 @@
-- name: "Create {{ servername }} {{ network }} fixed-ip port"
+- name: "Create {{ servername }} {{ network }} port {{ ipaddress }}"
   os_port:
     network: "{{ network }}"
     name: "{{ servername }}-{{ network }}-port"

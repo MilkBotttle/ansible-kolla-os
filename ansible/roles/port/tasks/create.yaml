@@ -2,10 +2,12 @@
 - name: Create fixed-ip ports
   include_tasks: static.yaml
   vars:
-    network: "{{ item }}"
-    servername: "{{ node_info.key }}"
-    ipaddress: "{{ node_info.value[item] }}"
+    network: "{{ node_network_info }}"
+    servername: "{{ name }}"
+    ipaddress: "{{ node_info[node_network_info] }}"
   when:
-    - node_info[item] != ''
+    - node_info[node_network_info] != ''
     - use_undercloud
-  with_items: "{{ ['ctlplane'] + role_used_network[node_info['role']]}}"
+  with_items: "{{ ['ctlplane'] + role_used_network[node_info.role]}}"
+  loop_control:
+    loop_var: node_network_info

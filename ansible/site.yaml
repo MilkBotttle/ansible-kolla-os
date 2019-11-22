@@ -13,10 +13,12 @@
     - read_csv:
         path: "{{ networks_csv_path | default('../networks.csv') }}"
       register: networks_csv_list
+
     - read_csv:
         path: "{{ nodes_csv_path | default('../nodes.csv') }}"
         key: name
       register: nodes_csv_dict
+
     - read_csv:
         path: "{{ networks_csv_path | default('../networks.csv') }}"
         key: name
@@ -52,16 +54,18 @@
         - name: "{{ item.name }}"
         - cidr: "{{ item.cidr }}"
       with_items: "{{ networks_csv_list.list }}"
-    - fail:
+
     - include_role:
         name: port
       vars:
+        name: "{{ item.name }}"
         node_info: "{{ item }}"
-      with_dict: "{{ networks_csv_dict.dict }}"
+      with_items: "{{ nodes_csv_list.list }}"
+
     - include_role:
         name: nic_config
       vars:
-        role: "{{ item.role }}"
+        copy_from_role: "{{ item.role }}"
         name: "{{ item.name }}"
       with_items: "{{ nodes_csv_list.list }}"
 
@@ -81,58 +85,43 @@
       with_items: "{{ nodes_csv_list.list }}"
 
 
-- name: Network Config
+- name: Update network config
   hosts: localhost
   connection: local
   gather_facts: no
   tags:
-    - network-config
+    - update-network-config
   tasks:
-    - include_role:
-        name: network
-      vars:
-        - network: "{{ item.name }}"
-        - cidr: "{{ item.cidr }}"
-      with_items: "{{ networks_csv_list.list }}"
-
     - include_role:
         name: port
       vars:
+        name: "{{ item.name }}"
         node_info: "{{ item }}"
-      with_dict: "{{ networks_csv_dict.dict }}"
+      with_items: "{{ nodes_csv_list.list }}"
 
     - include_role:
         name: nic_config
-      vars:
-        role: "{{ item.role }}"
-        name: "{{ item.name }}"
-      with_items: "{{ nodes_csv_list.list }}"
 
 
-- name: Reconfig Network
+- name: Update node nic config
   hosts: localhost
   connection: local
   gather_facts: no
   tags:
     - reconfig-network
+    - update-nic-config
   tasks:
-    - fail:
-        msg: "Reconfig network need host, use --hosts and --inventory"
-      when: host is not defined
     - include_role:
         name: nic_config
-      vars:
-        role: "{{ item.role }}"
-        name: "{{ item.name }}"
-      with_inventory_hostnames: "{{ host.split(',') | default('') }}"
 
 
-- name: Apply nic-config
+- name: Apply node nic config
   become: true
-  hosts: "{{ host | default('localhost') }}"
+  hosts: "{{ host | default('all')}}"
   gather_facts: no
   tags:
     - reconfig-network
+    - apply-nic-config
   tasks:
     - name: Create folder
       file:
@@ -169,14 +158,13 @@
   hosts: localhost
   tags:
     - create-inventory
-    - full-server-create
+    - full-create-server
   connection: local
   gather_facts: no
-  vars:
-    deploy_action: 'create'
   tasks:
     - include_role:
         name: inventory
+
 
 - name: Create with deployed node
   hosts: localhost
@@ -195,13 +183,6 @@
     - include_role:
         name: inventory
 
-
-- name: Reconfig Network
-  hosts: localhost
-  connection: local
-  tags:
-    - reconfig-network
-  tasks:
 
 - name: Destory all
   hosts: localhost

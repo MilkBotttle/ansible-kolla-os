@@ -1,3 +1,34 @@
+# This variable defined the network required for each role.
+# Acourding the list create the port named with `servername-network-port`
+#
+# Avaliable value for this variable:
+#   role: controller, compute, network
+#   network: internal, external, storage, compute, octavia, tunnel
+#
+# Format:
+# ---
+# role_used_network:
+#   role: [ network, network, network ]
+#
+# Example:
+# Controller with 1 node c1, compute with 1 node com1.
+# Controller with internal, external networks. Compute with internal, network.
+# ---
+# role_used_network:
+#   controller: [ internal, external, storage ]
+#   compute: [ internal, tunnel, storage ]
+#
+# Then create port:
+#   - c1-internal-port
+#   - c1-external-port
+#   - com1-internal-port
+#
+
+role_used_network:
+  controller: [ internal, external, storage, octavia ]
+  compute: [ internal, tunnel, storage, octavia ]
+  network: [ internal, tunnel, octavia, external ]
+
 # The default_gateway for node.
 default_gateway: '10.168.2.254'
 
