@@ -25,22 +25,6 @@
       register: networks_csv_dict
 
 
-- name: Validate Config
-  hosts: localhost
-  connection: local
-  tags: validate
-  gather_facts: no
-  tasks:
-    - validate_config:
-        servers: "{{ servers }}"
-        networks: "{{ networks}}"
-        role_used_network: "{{ role_used_network }}"
-        vips: "{{ vips | default([]) }}"
-      register: validate
-    - debug:
-        msg: "{{ validate.msg }}"
-
-
 - name: Full Create Server
   hosts: localhost
   connection: local
@@ -82,6 +66,23 @@
         name: server
       vars:
         server: "{{ item }}"
+      with_items: "{{ nodes_csv_list.list }}"
+
+
+- name: Create with deployed node
+  hosts: localhost
+  tags: deployed-server
+  connection: local
+  gather_facts: no
+  vars:
+    deploy_action: 'create'
+    use_undercloud: false
+  tasks:
+    - include_role:
+        name: port
+      vars:
+        name: "{{ item.name }}"
+        node_info: "{{ item }}"
       with_items: "{{ nodes_csv_list.list }}"
 
 
@@ -142,19 +143,7 @@
       poll: 5
 
 
-- name: Update /etc/hosts
-  hosts: localhost
-  connection: local
-  tags: etc-hosts
-  gather_facts: no
-  vars:
-    deploy_action: 'create'
-  tasks:
-    - include_role:
-        name: etc_hosts
-
-
-- name: Recreate inventory file
+- name: Create inventory file
   hosts: localhost
   tags:
     - create-inventory
@@ -166,22 +155,16 @@
         name: inventory
 
 
-- name: Create with deployed node
+- name: Update /etc/hosts
   hosts: localhost
-  tags: deployed-server
   connection: local
+  tags: etc-hosts
   gather_facts: no
   vars:
     deploy_action: 'create'
-    use_undercloud: false
   tasks:
     - include_role:
-        name: port
-      with_items: "{{ config_reg.parsed_config }}"
-    - include_role:
-        name: nic_config
-    - include_role:
-        name: inventory
+        name: etc_hosts
 
 
 - name: Destory all

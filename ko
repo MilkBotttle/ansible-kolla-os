@@ -44,15 +44,14 @@ Commands:
                             a ip in config.yaml.
     destroy                 Destroy Servers, Port, Network, Configs.
     generate-inventory      Generate inventory file.
-    reconfig-network        Reconfig server nic config for all nodes, use --inventory and --hosts for specific node or group.
+    reconfig-network        Update all servers nic config and apply, use --inventory and --hosts for specific node or group.
     update-network-config   Update port and nic config
     update-etc-hosts        Update /etc/hosts, add alias for ssh.
     update-nic-config       Update all nic config without apply, use --inventory and --hosts for specific node or group.
-    validate                Validate config.yaml and nic-configs, for using using undercloud
 EOF
 }
 SHORT_OPTS="hi:c:v"
-LONG_OPTS="help,wait,verbose,validate,inventory:,hosts:,config:,nodes-csv:,networks-csv:,update-etc-hosts"
+LONG_OPTS="help,wait,verbose,inventory:,hosts:,config:,nodes-csv:,networks-csv:,update-etc-hosts"
 
 RAW_ARGS="$*"
 ARGS=$(getopt -o "${SHORT_OPTS}" -l "${LONG_OPTS}" --name "$0" -- "$@") || { usage >&2; exit 2; }
@@ -183,9 +182,6 @@ case "$1" in
         ACTION="Reconfig deployed server network"
         EXTRA_OPTS="$EXTRA_OPTS --tags reconfig-network -e deploy_action=reconfig"
         ;;
-    (validate)
-        EXTRA_OPTS="$EXTRA_OPTS --tags validate"
-        ;;
     (update-etc-hosts)
         EXTRA_OPTS="--tags etc-hosts"
         ;;
@@ -196,5 +192,5 @@ case "$1" in
 esac
 
 CMD="ansible-playbook $INVENTORY $HOSTS $VALIDATE_OPTS $EXTRA_OPTS $PLAYBOOK $VERBOSITY"
-#echo $CMD
+
 process_cmd
