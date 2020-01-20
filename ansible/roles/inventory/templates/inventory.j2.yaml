@@ -1,19 +1,15 @@
 [all]
-{% for role, nodes in servers.items() %}
-{% for node in nodes %}
-{% set cmd= "grep ctlplane {{ info_file_path }}/" + node.keys()[0] + "-info.yaml" %}
-{{ node.keys()[0] }} ansible_host={{ lookup('pipe', cmd).split()[2].split(']')[0] }} ansible_ssh_user={{ ssh_user }}
-{% endfor %}
+{% for node in nodes_csv_list.list %}
+{{ node.name }} ansible_host={{ node.ctlplane }} ansible_ssh_user={{ ssh_user }}
 {% endfor %}
 
-{% for role, nodes in servers.items() %}
+{% for role in role_used_network.keys() %}
 
 [{{ role  }}]
 
-{% for node in nodes %}
-{% set cmd= "grep ctlplane {{ info_file_path  }}/" + node.keys()[0] + "-info.yaml" %}
-{{ node.keys()[0]  }} ansible_host={{ lookup('pipe', cmd).split()[2].split(']')[0]  }} ansible_ssh_user={{ ssh_user  }}
-
+{% for node in nodes_csv_list.list | selectattr('role','search', role)| list %}
+{{ node.name }} ansible_host={{ node.ctlplane }} ansible_ssh_user={{ ssh_user  }}
 {% endfor %}
 
 {% endfor%}
+

@@ -9,15 +9,9 @@
         openstack baremetal node show {{ baremetal_node }} -c uuid -f value
       register: baremetalnode_uuid
 
-    - name: Get nova host hostname
-      shell: |
-        source /home/stack/stackrc
-        openstack host list --zone nova -f value -c 'Host Name'
-      register: host_name
-
     - set_fact:
-        availability_zone: "nova:{{ host_name.stdout }}:{{ baremetalnode_uuid.stdout }}"
-  when:  baremetal_node != 'random'
+        availability_zone: "nova:{{ baremetal_host }}:{{ baremetalnode_uuid.stdout }}"
+  when:  baremetal_node != ''
 
 - name: "Read {{ servername }} ip info"
   include_vars: "{{ info_file_path }}/{{ servername }}-info.yaml"

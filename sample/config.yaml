@@ -25,12 +25,12 @@
 #
 
 role_used_network:
-  controller: [ internal, external, storage, octavia ]
-  compute: [ internal, tunnel, storage, octavia ]
-  network: [ internal, tunnel, octavia, external ]
+  controller: [ internal, external, octavia ]
+  compute: [ internal, tunnel, octavia, ex ]
+  network: [ internal, tunnel, octavia, external, ex ]
 
 # The default_gateway for node.
-default_gateway: '10.168.2.254'
+default_gateway: '172.22.126.254'
 
 # The vips for openstack used.
 # Format:
@@ -40,6 +40,9 @@ default_gateway: '10.168.2.254'
 #
 
 vips:
-  - external: 10.168.2.200
-  - internal: 10.168.1.200
+  - external: 172.22.126.200 
+  - internal: 172.22.131.200 
 
+# baremetal node in which nova host
+# Use `openstack host list` to find out 
+baremetal_host: undercloud.localdomain

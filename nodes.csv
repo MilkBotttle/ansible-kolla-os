@@ -1,0 +1,2 @@
+name,baremetal_node,role,ctlplane,internal,external,storage,octavia
+ocn2,ocn2,controller,192.168.24.10,10.168.1.100,10.168.2.100,,

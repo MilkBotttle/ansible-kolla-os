@@ -2,12 +2,9 @@
 This config base on `os-net-config` config, but the `ip_address` and `vlan_id` value replace by Ansible.
 You can directly write the ip and vlan id in config file is fine.
 
-Avaliable rolename:
-> controller, compute, network.
-
 Aaliable replace string in config:
-> * ip address: ctlplane, internal, external, tunnel, storage, octavia.
-> * vlan id: internal_vlan_id, external_vlan_id, tunnel_vlan_id, storage_vlan_id, octavia_vlan_id
+> * ip address: network name, example `external`
+> * vlan id: networ-name_vlan_id, example `internal_vlan_id`
 
 # Example config and mapping file
 * controller-config.yaml:

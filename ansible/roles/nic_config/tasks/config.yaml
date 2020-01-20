@@ -11,7 +11,7 @@
   replace:
     path: "{{ nic_config_path }}"
     regexp: "{{ net_fact.key }}$"
-    replace: "{{ net_fact.value[1] }}/{{ networks[net_fact.key].cidr | ipaddr('prefix') }}"
+    replace: "{{ net_fact.value[1] }}/{{ networks_csv_dict['dict'][net_fact.key]['cidr'] | ipaddr('prefix') }}"
   with_dict: "{{ include_register.ansible_facts }}"
   loop_control:
     loop_var: net_fact
@@ -20,7 +20,7 @@
   replace:
     path: "{{ nic_config_path }}"
     regexp: "{{ net_fact.key }}_vlan_id$"
-    replace: "{{ networks[net_fact.key].vlan_id }}"
+    replace: "{{ networks_csv_dict['dict'][net_fact.key]['vlan_id'] }}"
   with_dict: "{{ include_register.ansible_facts }}"
   when: net_fact.key != 'ctlplane'
   loop_control:

@@ -1,13 +1,10 @@
 ---
 - name: "Create network"
   os_network:
-    name: "{{ item }}"
-  when: "item != 'ctlplane'"
-  with_items: "{{ networks.keys() }}"
+    name: "{{ name }}"
+  when: 
+    - name != 'ctlplane'
 
 - include_tasks: subnet.yaml
-  vars:
-    network: "{{ item.key }}"
-    cidr: "{{ item.value.cidr }}"
-  when: "item.key != 'ctlplane'"
-  with_dict: "{{ networks }}"
+  when: 
+    - name != 'ctlplane'

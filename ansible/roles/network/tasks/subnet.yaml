@@ -1,7 +1,8 @@
 ---
-- name: "Create {{ network }} subnet"
+- name: "Create {{ name }} subnet"
   os_subnet:
-    network_name: "{{ network }}"
-    name: "{{ network }}-subnet"
+    network_name: "{{ name }}"
+    name: "{{ name }}-subnet"
     cidr: "{{ cidr }}"
     enable_dhcp: false
+  when: cidr != ''
