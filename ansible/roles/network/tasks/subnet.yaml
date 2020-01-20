@@ -5,3 +5,4 @@
     name: "{{ name }}-subnet"
     cidr: "{{ cidr }}"
     enable_dhcp: false
+  when: cidr != ''

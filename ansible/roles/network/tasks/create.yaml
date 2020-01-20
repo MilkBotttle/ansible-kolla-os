@@ -2,6 +2,9 @@
 - name: "Create network"
   os_network:
     name: "{{ name }}"
-  when: "name != 'ctlplane'"
+  when: 
+    - name != 'ctlplane'
+
 - include_tasks: subnet.yaml
-  when: "name != 'ctlplane'"
+  when: 
+    - name != 'ctlplane'

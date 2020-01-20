@@ -1,0 +1,48 @@
+# This variable defined the network required for each role.
+# Acourding the list create the port named with `servername-network-port`
+#
+# Avaliable value for this variable:
+#   role: controller, compute, network
+#   network: internal, external, storage, compute, octavia, tunnel
+#
+# Format:
+# ---
+# role_used_network:
+#   role: [ network, network, network ]
+#
+# Example:
+# Controller with 1 node c1, compute with 1 node com1.
+# Controller with internal, external networks. Compute with internal, network.
+# ---
+# role_used_network:
+#   controller: [ internal, external, storage ]
+#   compute: [ internal, tunnel, storage ]
+#
+# Then create port:
+#   - c1-internal-port
+#   - c1-external-port
+#   - com1-internal-port
+#
+
+role_used_network:
+  controller: [ internal, external, octavia ]
+  compute: [ internal, tunnel, octavia, ex ]
+  network: [ internal, tunnel, octavia, external, ex ]
+
+# The default_gateway for node.
+default_gateway: '172.22.126.254'
+
+# The vips for openstack used.
+# Format:
+# ---
+# vips:
+#   network: ip
+#
+
+vips:
+  - external: 172.22.126.200 
+  - internal: 172.22.131.200 
+
+# baremetal node in which nova host
+# Use `openstack host list` to find out 
+baremetal_host: undercloud.localdomain

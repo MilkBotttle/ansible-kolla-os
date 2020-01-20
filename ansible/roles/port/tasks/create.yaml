@@ -10,4 +10,18 @@
     - use_undercloud
   with_items: "{{ ['ctlplane'] + role_used_network[node_info.role]}}"
   loop_control:
-    loop_var: node_network_info
+    loop_var: node_network_info 
+
+- name: Create network info for no address requirement interface
+  include_tasks: save.yaml
+  vars:
+    network: "{{ node_network_info }}"
+    servername: "{{ name }}"
+    ip: "1.2.3.4"
+    id: "00000000-0000-0000-0000-000000000000"
+  when:
+    - node_info[node_network_info] == ''
+    - use_undercloud
+  with_items: "{{ ['ctlplane'] + role_used_network[node_info.role]}}"
+  loop_control:
+    loop_var: node_network_info 
