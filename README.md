@@ -24,9 +24,9 @@ Playbooks for deploy baremetal node for kolla-ansible use openstack baremetal.
 * Edit `nodes.csv` update network information
 * Update nic configs
 * Update config use `ko update-network-config`, update for specify node or group use
-  `ko update-network-config -i kolla-os-inventory.yaml --hosts controller`
+  `ko update-network-config -i kolla-os-inventory.yaml --hosts [host]`
 * Apply config use `ko apply-nic-config`, apply for specify node or group use
-  `ko apply-nic-config -i kolla-os-inventory.yaml --hosts controller`
+  `ko apply-nic-config -i kolla-os-inventory.yaml --hosts [host]`
 
 # Generate inventory file
 * Run `ko generate-inventory`
