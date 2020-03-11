@@ -1,16 +1,11 @@
-# Ansible deploy OS for kolla-ansible with undercloud
-Playbooks for deploy baremetal node for kolla-ansible use TripleO
-undercloud.
+# Ansible deploy OS for kolla-ansible with kolla-ansible baremetal
+Playbooks for deploy baremetal node for kolla-ansible use openstack baremetal.
 
 # Requirement
-* Ansible >= 2.8,< 2.9
-* openstacksdk
-* TripleO undercloud
+* Ansible >= 2.8
+* openstacksdk > 0.18
+* kolla-ansible baremetal
 * git
-
-# Install
-* Clone `git clone https://github.com/MilkBotttle/ansible-kolla-os.git`
-* Copy cli to bin `sudo cp ansible-kolla-os/ko /usr/bin`
 
 # Getting Started
 > After deploy the node info and nic-configs saved in
@@ -23,13 +18,17 @@ undercloud.
 * Deploy OS run `ko full-create-server`
 * Deploy complete apply network config `ko apply-nic-config`
 
-# Configure deployed node network or reconfig network
+# Reconfig network
 > Note: ctlplane network doesn't support reconfig.
-* Edit nic-configs and config files for new network
-* Run `ko reconfig-network`, reconfig network for specify node or group 
-  `ko reconfig-network -i kolla-os-inventory.yaml --hosts controller`
+* Edit `config.yaml` update network in `role_used_network`
+* Edit `nodes.csv` update network information
+* Update nic configs
+* Update config use `ko update-network-config`, update for specify node or group use
+  `ko update-network-config -i kolla-os-inventory.yaml --hosts controller`
+* Apply config use `ko apply-nic-config`, apply for specify node or group use
+  `ko apply-nic-config -i kolla-os-inventory.yaml --hosts controller`
 
-# Generate inventory file 
+# Generate inventory file
 * Run `ko generate-inventory`
 
 # Destory all
@@ -44,7 +43,7 @@ undercloud.
 > `rolename-config.yaml`    - Network config base file for role.
 > `rolename-mapping.yaml`   - Network interface mapping base file for role.
 * `config.yaml`             - Define gateway,vip, and node_required_network.
-* `nodes.csv`               - Define nodes 
+* `nodes.csv`               - Define nodes
 * `networks.csv`            - Define networks
 
 # Docs
