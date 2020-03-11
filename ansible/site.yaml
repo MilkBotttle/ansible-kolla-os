@@ -94,6 +94,13 @@
     - update-network-config
   tasks:
     - include_role:
+        name: network
+      vars:
+        - name: "{{ item.name }}"
+        - cidr: "{{ item.cidr }}"
+      with_items: "{{ networks_csv_list.list }}"
+
+    - include_role:
         name: port
       vars:
         name: "{{ item.name }}"

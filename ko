@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 function find_base {
     if test -f "$PWD/ansible/site.yaml"; then
@@ -29,25 +29,23 @@ Options:
     --wait              Wait server deploy complete
     --verbose, -v       Increase verbosity of ansible-playbook
     --inventory, -i     Specify path to ansible inventory file
-    --hosts             Specify hosts or group use comma split string to run plays required --inventory 
+    --hosts             Specify hosts or group use comma split string to run plays required --inventory
     --nodes-csv         Nodes csv file path, default is nodes.csv
     --networks-csv      Networks csv file path, default is networks.csv
     --update-etc-hosts  Update /etc/hosts, add alias for ssh, use this option with create-server.
-        
+
 
 Commands:
-    apply-nic-config        Apply nic-config to deployed ndoe
     full-create-server      Create network and deploy servers
     create-server           Deploy all server defined.
-    deployed                Create nic-config and inventory from config.yaml
-                            for deployed servers. Each server required network need assign
-                            a ip in config.yaml.
-    destroy                 Destroy Servers, Port, Network, Configs.
+    deployed                Create nic-config and inventory from csv directory
     generate-inventory      Generate inventory file.
-    reconfig-network        Update all servers nic config and apply, use --inventory and --hosts for specific node or group.
-    update-network-config   Update port and nic config
-    update-etc-hosts        Update /etc/hosts, add alias for ssh.
+
+    update-network-config   Update network, port and nic config without apply, use --inventory and --hosts for specific node or group.
     update-nic-config       Update all nic config without apply, use --inventory and --hosts for specific node or group.
+    apply-nic-config        Apply nic-config to deployed ndoe
+    update-etc-hosts        Update /etc/hosts, add alias for ssh.
+    destroy                 Destroy Servers, Port, Network, Configs.
 EOF
 }
 SHORT_OPTS="hi:c:v"
@@ -65,7 +63,7 @@ EXTRA_OPTS=${EXTRA_OPTS}
 find_base
 
 while [ "$#" -gt 0 ]; do
-    case "$1" in 
+    case "$1" in
         (--config|-c)
             if test -f "$2";then
                 EXTRA_OPTS="$EXTRA_OPTS -e config_path=$2"
@@ -94,7 +92,7 @@ while [ "$#" -gt 0 ]; do
             ;;
         (--update-etc-hosts)
             EXTRA_OPTS="$EXTRA_OPTS --tags etc-hosts"
-            shift 
+            shift
             ;;
         (--nodes-csv)
             EXTRA_OPTS="$EXTRA_OPTS -e nodes_csv_path=$2"
@@ -127,7 +125,7 @@ if [ "$INVNTORY_REQUIRED" = "true" ];then
     fi
 fi
 
-case "$1" in 
+case "$1" in
     (deployed)
         ACTION="Deploy with deployed servers."
         EXTRA_OPTS="$EXTRA_OPTS --tags deployed-server "
@@ -142,6 +140,12 @@ case "$1" in
         ;;
     (update-network-config)
         ACTION="Update network port and nic config"
+        if [ "x$INVENTORY" = "x" ];then
+            INVENTORY='-i kolla-os-inventory.yaml'
+        fi
+        if [ "x$HOSTS" = "x" ];then
+            HOSTS="-e host=all"
+        fi
         EXTRA_OPTS="$EXTRA_OPTS --tags update-network-config -e deploy_action=reconfig"
         ;;
     (create-server)
@@ -153,34 +157,24 @@ case "$1" in
         EXTRA_OPTS="$EXTRA_OPTS --tags create-inventory -e deploy_action=create"
         ;;
     (update-nic-config)
-        if [ "x$INVENTORY" = "x" ];then 
+        if [ "x$INVENTORY" = "x" ];then
             INVENTORY='-i kolla-os-inventory.yaml'
-        fi 
-        if [ "x$HOSTS" = "x" ];then 
+        fi
+        if [ "x$HOSTS" = "x" ];then
             HOSTS="-e host=all"
         fi
         ACTION="Update nic config only"
         EXTRA_OPTS="$EXTRA_OPTS -e deploy_action=reconfig --tags update-nic-config"
         ;;
     (apply-nic-config)
-        if [ "x$INVENTORY" = "x" ];then 
+        if [ "x$INVENTORY" = "x" ];then
             INVENTORY='-i kolla-os-inventory.yaml'
-        fi 
-        if [ "x$HOSTS" = "x" ];then 
+        fi
+        if [ "x$HOSTS" = "x" ];then
             HOSTS="-e host=all"
         fi
         ACTION="Apply nic config to nodes"
         EXTRA_OPTS="$EXTRA_OPTS --tags apply-nic-config"
-        ;;
-    (reconfig-network)
-        if [ "x$INVENTORY" = "x" ];then 
-            INVENTORY='-i kolla-os-inventory.yaml'
-        fi 
-        if [ "x$HOSTS" = "x" ];then 
-            HOSTS="-e host=all"
-        fi
-        ACTION="Reconfig deployed server network"
-        EXTRA_OPTS="$EXTRA_OPTS --tags reconfig-network -e deploy_action=reconfig"
         ;;
     (update-etc-hosts)
         EXTRA_OPTS="--tags etc-hosts"
