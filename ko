@@ -38,7 +38,7 @@ Options:
 Commands:
     full-create-server      Create network and deploy servers
     create-server           Deploy all server defined.
-    deployed                Create nic-config and inventory from csv directory
+    deployed                Create nic-config and inventory from csv directly
     generate-inventory      Generate inventory file.
 
     update-network-config   Update network, port and nic config without apply, use --inventory and --hosts for specific node or group.
